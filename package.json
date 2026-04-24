@@ -5,7 +5,7 @@
   "packageManager": "pnpm@10.33.2",
   "scripts": {
     "dev:web": "pnpm --filter web dev",
-    "dev:mobile": "pnpm --filter mobile start",
+    "dev:mobile": "pnpm --filter @booklog/mobile start",
     "db:migrate": "node -e \"console.log('TODO: wire migration tool in next phase')\"",
     "lint": "pnpm -r --if-present lint",
     "test": "pnpm -r --if-present test",
