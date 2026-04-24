@@ -16,7 +16,7 @@ function createMockLogger(): Logger {
 
 describe("createRpcClient", () => {
   beforeEach(() => {
-    vi.spyOn(crypto, "randomUUID").mockReturnValue("rpc-id");
+    vi.spyOn(crypto, "randomUUID").mockReturnValue("00000000-0000-0000-0000-000000000001");
   });
 
   afterEach(() => {
@@ -37,7 +37,7 @@ describe("createRpcClient", () => {
     const rpc = createRpcClient<SendMsg, RecvMsg>({ send, onIncoming });
     const result = await rpc.request("PING", { ts: 1 });
 
-    expect(result).toEqual({ id: "rpc-id", ok: true });
+    expect(result).toEqual({ id: "00000000-0000-0000-0000-000000000001", ok: true });
     expect(send).toHaveBeenCalledTimes(1);
   });
 
@@ -60,11 +60,13 @@ describe("createRpcClient", () => {
     });
 
     const pending = rpc.request("PING", { ts: 1 });
-    const rejectionAssertion = expect(pending).rejects.toThrow("RPC timeout after 100ms for id rpc-id");
+    const rejectionAssertion = expect(pending).rejects.toThrow(
+      "RPC timeout after 100ms for id 00000000-0000-0000-0000-000000000001",
+    );
     await vi.advanceTimersByTimeAsync(101);
     await rejectionAssertion;
 
-    incomingHandler?.({ id: "rpc-id", ok: true });
+    incomingHandler?.({ id: "00000000-0000-0000-0000-000000000001", ok: true });
     expect(logger.warn).not.toHaveBeenCalled();
   });
 
@@ -83,7 +85,7 @@ describe("createRpcClient", () => {
     const rpc = createRpcClient<SendMsg, RecvMsg>({ send, onIncoming, logger });
     const result = await rpc.request("PING", { ts: 1 });
 
-    expect(result).toEqual({ id: "rpc-id", ok: true });
+    expect(result).toEqual({ id: "00000000-0000-0000-0000-000000000001", ok: true });
     expect(logger.warn).toHaveBeenCalledTimes(1);
   });
 

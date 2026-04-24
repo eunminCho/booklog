@@ -20,11 +20,11 @@ function createMockLogger(): Logger {
 }
 
 function installWindowMock(): WindowMock {
-  const windowMock: WindowMock = {
+  const windowMock = {
     ReactNativeWebView: {
       postMessage: vi.fn(),
     },
-  } as WindowMock;
+  } as unknown as WindowMock;
   vi.stubGlobal("window", windowMock);
   return windowMock;
 }
