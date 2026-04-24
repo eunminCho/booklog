@@ -131,3 +131,7 @@ TODO
 ```bash
 pnpm -r test
 ```
+
+## 9. 문서
+
+- [외부 API 에러 상태](docs/error-states.md)

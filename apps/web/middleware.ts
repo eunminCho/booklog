@@ -25,5 +25,5 @@ function redirectToLogin(request: NextRequest): NextResponse {
 }
 
 export const config = {
-  matcher: ["/library/:path*", "/home/:path*"],
+  matcher: ["/library/:path*", "/home/:path*", "/search/:path*", "/books/:path*"],
 };
