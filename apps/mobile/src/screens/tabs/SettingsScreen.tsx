@@ -3,13 +3,13 @@ import { Button, StyleSheet, Text, View } from "react-native";
 import { useAuth } from "../../state/AuthContext";
 
 export function SettingsScreen() {
-  const { clearToken } = useAuth();
+  const { signOut, isSubmitting } = useAuth();
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Settings</Text>
       <Text style={styles.subtitle}>placeholder</Text>
-      <Button title="Mock Logout" onPress={clearToken} />
+      <Button title={isSubmitting ? "로그아웃 중..." : "로그아웃"} onPress={() => void signOut()} />
     </View>
   );
 }

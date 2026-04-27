@@ -1,15 +1,45 @@
-import { Button, StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import { Button, StyleSheet, Text, TextInput, View } from "react-native";
 
 import { useAuth } from "../../state/AuthContext";
 
 export function LoginScreen() {
-  const { setToken } = useAuth();
+  const { signIn, error, clearError, isSubmitting } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  async function handleSignIn(): Promise<void> {
+    clearError();
+    try {
+      await signIn(email.trim(), password);
+    } catch {
+      // 메시지는 AuthContext에서 관리한다.
+    }
+  }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Login (Mock)</Text>
-      <Text style={styles.subtitle}>로그인 구현은 다음 Phase에서 연결 예정</Text>
-      <Button title="Mock Login" onPress={() => setToken("dummy")} />
+      <Text style={styles.title}>로그인</Text>
+      <TextInput
+        value={email}
+        onChangeText={setEmail}
+        placeholder="이메일"
+        autoCapitalize="none"
+        keyboardType="email-address"
+        autoCorrect={false}
+        style={styles.input}
+      />
+      <TextInput
+        value={password}
+        onChangeText={setPassword}
+        placeholder="비밀번호"
+        secureTextEntry
+        autoCapitalize="none"
+        autoCorrect={false}
+        style={styles.input}
+      />
+      {error ? <Text style={styles.error}>{error}</Text> : null}
+      <Button title={isSubmitting ? "로그인 중..." : "로그인"} onPress={() => void handleSignIn()} />
     </View>
   );
 }
@@ -26,7 +56,17 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "700",
   },
-  subtitle: {
-    color: "#555",
+  input: {
+    width: "100%",
+    borderWidth: 1,
+    borderColor: "#d4d4d8",
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    backgroundColor: "#fff",
+  },
+  error: {
+    width: "100%",
+    color: "#b91c1c",
   },
 });

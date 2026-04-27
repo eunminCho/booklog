@@ -1,15 +1,48 @@
-import { Button, StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import { Button, StyleSheet, Text, TextInput, View } from "react-native";
 
 import { useAuth } from "../../state/AuthContext";
 
 export function SignUpScreen() {
-  const { setToken } = useAuth();
+  const { signUp, error, clearError, isSubmitting } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  async function handleSignUp(): Promise<void> {
+    clearError();
+    try {
+      await signUp(email.trim(), password);
+    } catch {
+      // 메시지는 AuthContext에서 관리한다.
+    }
+  }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Sign Up (Mock)</Text>
-      <Text style={styles.subtitle}>회원가입 구현은 다음 Phase에서 연결 예정</Text>
-      <Button title="Mock Sign Up" onPress={() => setToken("dummy")} />
+      <Text style={styles.title}>회원가입</Text>
+      <TextInput
+        value={email}
+        onChangeText={setEmail}
+        placeholder="이메일"
+        autoCapitalize="none"
+        keyboardType="email-address"
+        autoCorrect={false}
+        style={styles.input}
+      />
+      <TextInput
+        value={password}
+        onChangeText={setPassword}
+        placeholder="비밀번호(8자 이상)"
+        secureTextEntry
+        autoCapitalize="none"
+        autoCorrect={false}
+        style={styles.input}
+      />
+      {error ? <Text style={styles.error}>{error}</Text> : null}
+      <Button
+        title={isSubmitting ? "가입 중..." : "가입하기"}
+        onPress={() => void handleSignUp()}
+      />
     </View>
   );
 }
@@ -26,7 +59,17 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "700",
   },
-  subtitle: {
-    color: "#555",
+  input: {
+    width: "100%",
+    borderWidth: 1,
+    borderColor: "#d4d4d8",
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    backgroundColor: "#fff",
+  },
+  error: {
+    width: "100%",
+    color: "#b91c1c",
   },
 });

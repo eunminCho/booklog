@@ -87,6 +87,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@booklog/bridge':
+        specifier: workspace:*
+        version: link:../../packages/bridge
       '@prisma/client':
         specifier: ^6.17.1
         version: 6.19.3(prisma@6.19.3(magicast@0.3.5)(typescript@5.9.3))(typescript@5.9.3)

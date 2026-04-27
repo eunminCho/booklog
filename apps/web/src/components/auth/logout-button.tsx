@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { BRIDGE_VERSION, postToNative } from "@booklog/bridge";
 
 type ApiErrorResponse = {
   error?: {
@@ -26,6 +27,10 @@ export function LogoutButton() {
         return;
       }
 
+      postToNative({
+        v: BRIDGE_VERSION,
+        type: "REQUEST_LOGOUT",
+      });
       router.replace("/login");
       router.refresh();
     } catch {
