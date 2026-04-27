@@ -13,6 +13,7 @@ import { useEffect, useMemo, useState } from "react";
 type UseNativeBridgeResult = {
   auth: AuthPayload | null;
   theme: "light" | "dark" | "system";
+  fontScale: number;
   requestLogout: () => void;
 };
 
@@ -41,6 +42,7 @@ export function useNativeBridge(): UseNativeBridgeResult {
   const initial = useMemo(() => readBootstrap(), []);
   const [auth, setAuth] = useState<AuthPayload | null>(initial?.auth ?? null);
   const [theme, setTheme] = useState<"light" | "dark" | "system">(initial?.theme ?? "system");
+  const [fontScale, setFontScale] = useState<number>(initial?.fontScale ?? 1);
 
   useEffect(() => {
     const dispose = createWebReceiver({
@@ -55,6 +57,9 @@ export function useNativeBridge(): UseNativeBridgeResult {
             return;
           case "SET_THEME":
             setTheme(message.payload.theme);
+            return;
+          case "SET_FONT_SCALE":
+            setFontScale(message.payload.fontScale);
             return;
           default:
             return;
@@ -83,6 +88,7 @@ export function useNativeBridge(): UseNativeBridgeResult {
   return {
     auth,
     theme,
+    fontScale,
     requestLogout: () => {
       postToNative(
         {

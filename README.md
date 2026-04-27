@@ -124,7 +124,12 @@ npx expo run:android
 
 ## 7. 트러블슈팅 (빈 섹션, TODO)
 
-TODO
+### iOS 시뮬레이터에서 폰트 스케일이 반영되지 않을 때
+
+1. iOS Simulator에서 `Settings` 앱을 엽니다.
+2. `Accessibility` → `Display & Text Size` → `Larger Text`로 이동합니다.
+3. `Larger Accessibility Sizes`를 켠 뒤 슬라이더로 텍스트 크기를 조정합니다.
+4. BookLog 앱으로 돌아와 `Settings` 화면의 폰트 스케일 값이 변경되었는지 확인합니다.
 
 ## 8. 테스트 실행
 

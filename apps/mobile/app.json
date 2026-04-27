@@ -4,6 +4,7 @@
     "slug": "booklog",
     "version": "1.0.0",
     "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
     "scheme": "booklog",
     "newArchEnabled": true, 
     "ios": {

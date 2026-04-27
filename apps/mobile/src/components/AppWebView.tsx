@@ -16,6 +16,7 @@ import { WebView, type WebViewMessageEvent } from "react-native-webview";
 import { getApiBaseUrl } from "../lib/config";
 import { registerWebViewRef } from "../lib/bridge/webviewRegistry";
 import { useAuth } from "../state/AuthContext";
+import { useDisplay } from "../state/DisplayContext";
 
 const logger = createConsoleLogger("app-webview");
 
@@ -27,12 +28,22 @@ type AppWebViewProps = {
   path: string;
 };
 
-function toReadyStateMessage(token: string | null, userId: string | null): NativeToWebMessage[] {
+function toReadyStateMessage(
+  token: string | null,
+  userId: string | null,
+  theme: "light" | "dark",
+  fontScale: number,
+): NativeToWebMessage[] {
   const baseMessages: NativeToWebMessage[] = [
     {
       v: BRIDGE_VERSION,
       type: "SET_THEME",
-      payload: { theme: "system" },
+      payload: { theme },
+    },
+    {
+      v: BRIDGE_VERSION,
+      type: "SET_FONT_SCALE",
+      payload: { fontScale },
     },
   ];
 
@@ -55,6 +66,7 @@ export const AppWebView = forwardRef<AppWebViewHandle, AppWebViewProps>(function
   ref,
 ) {
   const { session, signOut } = useAuth();
+  const { resolvedTheme, fontScale } = useDisplay();
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const webViewRef = useRef<WebView | null>(null);
   const apiBaseUrl = getApiBaseUrl();
@@ -67,17 +79,22 @@ export const AppWebView = forwardRef<AppWebViewHandle, AppWebViewProps>(function
             userId: session.userId,
           }
         : null,
-      theme: "system",
-      fontScale: 1,
+      theme: resolvedTheme,
+      fontScale,
       appVersion: Constants.expoConfig?.version ?? "1.0.0",
       platform: Platform.OS === "ios" ? "ios" : "android",
     });
-  }, [session]);
+  }, [fontScale, resolvedTheme, session]);
 
   const dispatchFromWeb = useCallback(async (message: WebToNativeMessage): Promise<void> => {
     switch (message.type) {
       case "READY": {
-        const syncMessages = toReadyStateMessage(session?.token ?? null, session?.userId ?? null);
+        const syncMessages = toReadyStateMessage(
+          session?.token ?? null,
+          session?.userId ?? null,
+          resolvedTheme,
+          fontScale,
+        );
         syncMessages.forEach((item) => {
           postToWeb(webViewRef, item, logger);
         });
@@ -100,7 +117,7 @@ export const AppWebView = forwardRef<AppWebViewHandle, AppWebViewProps>(function
       default:
         return;
     }
-  }, [navigation, session?.token, session?.userId, signOut]);
+  }, [fontScale, navigation, resolvedTheme, session?.token, session?.userId, signOut]);
 
   const handleMessage = useMemo(
     () =>
