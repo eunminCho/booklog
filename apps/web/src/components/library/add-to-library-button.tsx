@@ -21,10 +21,19 @@ type ApiErrorResponse = {
   };
 };
 
+const statusOptions = [
+  { value: "READING", label: "읽는 중" },
+  { value: "DONE", label: "완독" },
+  { value: "WISHLIST", label: "위시리스트" },
+] as const;
+
+type BookStatusValue = (typeof statusOptions)[number]["value"];
+
 export function AddToLibraryButton({ book, label = "서재에 추가" }: AddToLibraryButtonProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [status, setStatus] = useState<BookStatusValue>("WISHLIST");
 
   async function handleClick(): Promise<void> {
     setIsSubmitting(true);
@@ -41,7 +50,7 @@ export function AddToLibraryButton({ book, label = "서재에 추가" }: AddToLi
           title: book.title,
           authors: book.authors,
           thumbnail: book.thumbnail,
-          status: "WISHLIST",
+          status,
         }),
       });
 
@@ -62,6 +71,22 @@ export function AddToLibraryButton({ book, label = "서재에 추가" }: AddToLi
 
   return (
     <div className="space-y-2">
+      <label className="block space-y-1">
+        <span className="text-xs text-zinc-600">상태</span>
+        <select
+          value={status}
+          onChange={(event) => setStatus(event.target.value as BookStatusValue)}
+          disabled={isSubmitting}
+          className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm outline-none ring-blue-300 focus:ring-2 disabled:opacity-60"
+          aria-label="서재 상태 선택"
+        >
+          {statusOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </label>
       <Button
         type="button"
         onClick={handleClick}

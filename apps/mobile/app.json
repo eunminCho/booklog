@@ -23,7 +23,7 @@
       "expo-secure-store"
     ],
     "extra": {
-      "apiBaseUrl": "https://booklog-web-fovj.vercel.app"
+      "apiBaseUrl": "http://127.0.0.1:3000"
     }
   }
 }

@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { BookStatusSelect } from "@/src/components/library/book-status-select";
 import { NoteForm } from "@/src/components/library/note-form";
 import { getCurrentUser } from "@/src/lib/auth/current-user";
 import { db } from "@/src/lib/db";
@@ -84,8 +85,8 @@ export default async function LibraryDetailPage({ params, searchParams }: Librar
           <p className="mt-1 text-sm text-zinc-700">
             {book.authors.length > 0 ? book.authors.join(", ") : "저자 정보 없음"}
           </p>
-          <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
-            <Badge variant="secondary">{book.status}</Badge>
+          <div className="mt-3 flex flex-wrap items-end gap-3 text-xs">
+            <BookStatusSelect bookId={book.id} initialStatus={book.status} />
             {book.rating ? (
               <Badge variant="secondary">평점 {book.rating}</Badge>
             ) : null}
