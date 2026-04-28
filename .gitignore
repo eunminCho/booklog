@@ -8,3 +8,4 @@ android/
 dist
 coverage
 .cursor
+.idea

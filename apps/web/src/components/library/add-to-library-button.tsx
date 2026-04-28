@@ -12,6 +12,7 @@ type AddToLibraryButtonProps = {
     authors: string[];
     thumbnail: string | null;
   };
+  label?: string;
 };
 
 type ApiErrorResponse = {
@@ -20,7 +21,7 @@ type ApiErrorResponse = {
   };
 };
 
-export function AddToLibraryButton({ book }: AddToLibraryButtonProps) {
+export function AddToLibraryButton({ book, label = "서재에 추가" }: AddToLibraryButtonProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -67,7 +68,7 @@ export function AddToLibraryButton({ book }: AddToLibraryButtonProps) {
         disabled={isSubmitting}
         className="w-full"
       >
-        {isSubmitting ? "추가 중..." : "서재에 추가"}
+        {isSubmitting ? "추가 중..." : label}
       </Button>
       {errorMessage ? (
         <p role="alert" className="rounded-md bg-red-50 px-3 py-2 text-xs text-red-700">

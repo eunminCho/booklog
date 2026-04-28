@@ -9,7 +9,10 @@
     "newArchEnabled": true, 
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.booklog.app"
+      "bundleIdentifier": "com.booklog.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "책 바코드를 스캔해 서재에 추가하려면 카메라 권한이 필요합니다."
+      }
     },
     "android": {
       "package": "com.booklog.app",
@@ -20,7 +23,7 @@
       "expo-secure-store"
     ],
     "extra": {
-      "apiBaseUrl": "http://127.0.0.1:3000"
+      "apiBaseUrl": "https://booklog-web-fovj.vercel.app"
     }
   }
 }
