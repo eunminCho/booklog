@@ -18,7 +18,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { ActivityIndicator, Linking, Platform, StyleSheet, Text, View } from "react-native";
+import { Linking, Platform, StyleSheet, View } from "react-native";
 import { WebView, type WebViewMessageEvent } from "react-native-webview";
 
 import { getApiBaseUrl } from "../lib/config";
@@ -81,6 +81,7 @@ export const AppWebView = forwardRef<AppWebViewHandle, AppWebViewProps>(function
   const apiBaseUrl = getApiBaseUrl();
   const [showLoadingOverlay, setShowLoadingOverlay] = useState(true);
   const [loadProgress, setLoadProgress] = useState(0);
+  const [showRouteLoadingBar, setShowRouteLoadingBar] = useState(false);
 
   const bootstrapScript = useMemo(() => {
     return buildBootstrapScript({
@@ -123,6 +124,24 @@ export const AppWebView = forwardRef<AppWebViewHandle, AppWebViewProps>(function
       }
       case "OPEN_EXTERNAL": {
         await Linking.openURL(message.payload.url);
+        return;
+      }
+      case "LOG": {
+        if (message.payload.message !== "WEB_ROUTE_LOADING") {
+          return;
+        }
+
+        const loading =
+          typeof message.payload.context === "object" &&
+          message.payload.context !== null &&
+          "loading" in message.payload.context &&
+          typeof message.payload.context.loading === "boolean"
+            ? message.payload.context.loading
+            : null;
+
+        if (loading !== null) {
+          setShowRouteLoadingBar(loading);
+        }
         return;
       }
       default:
@@ -178,6 +197,7 @@ export const AppWebView = forwardRef<AppWebViewHandle, AppWebViewProps>(function
   const startLoading = useCallback(() => {
     clearHideOverlayTimeout();
     setLoadProgress(0);
+    setShowRouteLoadingBar(false);
     setShowLoadingOverlay(true);
   }, [clearHideOverlayTimeout]);
 
@@ -213,18 +233,14 @@ export const AppWebView = forwardRef<AppWebViewHandle, AppWebViewProps>(function
           setLoadProgress(event.nativeEvent.progress);
         }}
       />
+      {showRouteLoadingBar && !showLoadingOverlay ? (
+        <View style={styles.routeLoadingTrack}>
+          <View style={styles.routeLoadingFill} />
+        </View>
+      ) : null}
       {showLoadingOverlay ? (
-        <View
-          style={styles.loadingOverlay}
-          accessible
-          accessibilityLabel="로딩 중"
-          accessibilityLiveRegion="polite"
-        >
-          <View style={styles.progressTrack}>
-            <View style={[styles.progressFill, { width: `${Math.max(5, loadProgress * 100)}%` }]} />
-          </View>
-          <ActivityIndicator size="small" color="#111827" />
-          <Text style={styles.loadingText}>로딩 중</Text>
+        <View style={styles.progressTrack} accessible accessibilityLabel="로딩 중" accessibilityLiveRegion="polite">
+          <View style={[styles.progressFill, { width: `${Math.max(5, loadProgress * 100)}%` }]} />
         </View>
       ) : null}
     </View>
@@ -234,14 +250,6 @@ export const AppWebView = forwardRef<AppWebViewHandle, AppWebViewProps>(function
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  loadingOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.7)",
-    gap: 10,
-    paddingHorizontal: 24,
   },
   progressTrack: {
     position: "absolute",
@@ -255,8 +263,17 @@ const styles = StyleSheet.create({
     height: "100%",
     backgroundColor: "#111827",
   },
-  loadingText: {
-    fontSize: 13,
-    color: "#111827",
+  routeLoadingTrack: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 3,
+    backgroundColor: "rgba(17, 24, 39, 0.12)",
+  },
+  routeLoadingFill: {
+    height: "100%",
+    width: "70%",
+    backgroundColor: "#111827",
   },
 });

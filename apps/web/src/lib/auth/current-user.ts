@@ -18,9 +18,14 @@ export const getCurrentUser = cache(async (): Promise<User | null> => {
     return null;
   }
 
-  return db.user.findUnique({
-    where: {
-      id: session.userId,
-    },
-  });
+  try {
+    return await db.user.findUnique({
+      where: {
+        id: session.userId,
+      },
+    });
+  } catch (error) {
+    console.error("[auth/getCurrentUser] failed to query database", error);
+    return null;
+  }
 });

@@ -3,6 +3,7 @@
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { BRIDGE_VERSION, postToNative } from "@booklog/bridge";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -170,6 +171,15 @@ export function SearchPageClient({ initialQuery, initialMock }: SearchPageClient
 
     const trimmed = query.trim();
     const search = trimmed ? `?q=${encodeURIComponent(trimmed)}` : "";
+    postToNative({
+      v: BRIDGE_VERSION,
+      type: "LOG",
+      payload: {
+        level: "info",
+        message: "WEB_ROUTE_LOADING",
+        context: { loading: true },
+      },
+    });
     router.replace(`/search${search}`);
     await runSearch(trimmed);
   }
