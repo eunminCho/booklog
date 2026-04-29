@@ -198,6 +198,11 @@ export const AppWebView = forwardRef<AppWebViewHandle, AppWebViewProps>(function
         originWhitelist={originWhitelist}
         sharedCookiesEnabled
         thirdPartyCookiesEnabled
+        scalesPageToFit={false}
+        setBuiltInZoomControls={false}
+        setDisplayZoomControls={false}
+        bounces={false}
+        allowsBackForwardNavigationGestures={true}
         injectedJavaScriptBeforeContentLoaded={bootstrapScript}
         onMessage={handleMessage as (event: WebViewMessageEvent) => void}
         onLoadStart={startLoading}

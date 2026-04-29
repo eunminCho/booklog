@@ -165,7 +165,7 @@ export function SearchPageClient({ initialQuery, initialMock }: SearchPageClient
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="책 제목, 저자, ISBN"
-            className="w-full"
+            className="w-full text-base"
           />
           <Button type="submit">
             검색
