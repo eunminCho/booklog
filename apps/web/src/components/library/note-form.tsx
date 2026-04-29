@@ -67,7 +67,7 @@ export function NoteForm({ bookId }: NoteFormProps) {
         value={content}
         onChange={(event) => setContent(event.target.value)}
         rows={5}
-        className="mt-2 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none ring-blue-300 focus:ring-2"
+        className="mt-2 w-full rounded-md border border-zinc-300 px-3 py-2 text-base outline-none ring-blue-300 focus:ring-2"
         placeholder="읽으면서 남길 메모를 입력하세요."
       />
       {errorMessage ? (

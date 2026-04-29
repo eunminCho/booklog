@@ -1,0 +1,24 @@
+import Link from "next/link";
+
+type FixedBackIconHeaderProps = {
+  href: string;
+  ariaLabel: string;
+};
+
+export function FixedBackIconHeader({ href, ariaLabel }: FixedBackIconHeaderProps) {
+  return (
+    <header className="fixed inset-x-0 top-0 z-30 border-b border-zinc-200 bg-white/95 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/95">
+      <div className="mx-auto flex w-full max-w-4xl items-center px-6 py-3">
+        <Link
+          href={href}
+          aria-label={ariaLabel}
+          className="inline-flex h-10 w-10 items-center justify-center rounded-md text-zinc-900 hover:bg-zinc-100 dark:text-zinc-100 dark:hover:bg-zinc-800"
+        >
+          <svg width="24" height="24" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fillRule="evenodd" clipRule="evenodd" d="M7.85355 2.64645C7.65829 2.45118 7.34171 2.45118 7.14645 2.64645L2.14645 7.64645C1.95118 7.84171 1.95118 8.15829 2.14645 8.35355L7.14645 13.3536C7.34171 13.5488 7.65829 13.5488 7.85355 13.3536C8.04882 13.1583 8.04882 12.8417 7.85355 12.6464L3.70711 8.5H14.5C14.7761 8.5 15 8.27614 15 8C15 7.72386 14.7761 7.5 14.5 7.5H3.70711L7.85355 3.35355C8.04882 3.15829 8.04882 2.84171 7.85355 2.64645Z" fill="currentColor" />
+          </svg>
+        </Link>
+      </div>
+    </header>
+  );
+}

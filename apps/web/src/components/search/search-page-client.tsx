@@ -1,6 +1,7 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +17,7 @@ type BookSummary = {
   title: string;
   authors: string[];
   thumbnail: string | null;
+  libraryBookId?: string | null;
 };
 
 type SearchApiResponse = {
@@ -77,6 +79,9 @@ export function SearchPageClient({ initialQuery, initialMock }: SearchPageClient
   const [state, setState] = useState<ExternalApiState | null>(null);
   const [retryAfterSec, setRetryAfterSec] = useState<number | undefined>(undefined);
   const [didSearch, setDidSearch] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [addedBookMap, setAddedBookMap] = useState<Record<string, string | null>>({});
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const forcedState = useMemo(() => {
     if (process.env.NODE_ENV === "production") {
@@ -126,6 +131,13 @@ export function SearchPageClient({ initialQuery, initialMock }: SearchPageClient
 
       const results = data?.books ?? [];
       setBooks(results);
+      setAddedBookMap(
+        Object.fromEntries(
+          results
+            .filter((book) => Boolean(book.libraryBookId))
+            .map((book) => [getBookKey(book), book.libraryBookId ?? null]),
+        ),
+      );
       setState(results.length === 0 ? "empty" : null);
     } catch {
       setState("offline");
@@ -145,6 +157,14 @@ export function SearchPageClient({ initialQuery, initialMock }: SearchPageClient
     }
   }, [forcedState, initialQuery, runSearch]);
 
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) {
+        clearTimeout(toastTimerRef.current);
+      }
+    };
+  }, []);
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
 
@@ -153,6 +173,25 @@ export function SearchPageClient({ initialQuery, initialMock }: SearchPageClient
     router.replace(`/search${search}`);
     await runSearch(trimmed);
   }
+
+  const showAddedToast = useCallback(() => {
+    if (toastTimerRef.current) {
+      clearTimeout(toastTimerRef.current);
+    }
+    setToastMessage("내 서재에 추가되었습니다.");
+    toastTimerRef.current = setTimeout(() => {
+      setToastMessage(null);
+      toastTimerRef.current = null;
+    }, 2200);
+  }, []);
+
+  const markAsAdded = useCallback((book: BookSummary, bookId: string | null) => {
+    const key = getBookKey(book);
+    setAddedBookMap((prev) => ({
+      ...prev,
+      [key]: bookId,
+    }));
+  }, []);
 
   return (
     <div className="mx-auto w-full max-w-4xl space-y-6">
@@ -216,7 +255,25 @@ export function SearchPageClient({ initialQuery, initialMock }: SearchPageClient
                     </div>
                   ) : null}
                 </div>
-                <AddToLibraryButton book={book} />
+                {addedBookMap[getBookKey(book)] !== undefined ? (
+                  <Button asChild variant="outline">
+                    <Link href={addedBookMap[getBookKey(book)] ? `/library/${addedBookMap[getBookKey(book)]}` : "/library"}>
+                      서재로 이동
+                    </Link>
+                  </Button>
+                ) : (
+                  <AddToLibraryButton
+                    book={book}
+                    redirectOnSuccess={false}
+                    onSuccess={(bookId) => {
+                      markAsAdded(book, bookId);
+                      showAddedToast();
+                    }}
+                    onAlreadyInLibrary={(bookId) => {
+                      markAsAdded(book, bookId);
+                    }}
+                  />
+                )}
               </div>
             </Card>
           ))}
@@ -226,6 +283,20 @@ export function SearchPageClient({ initialQuery, initialMock }: SearchPageClient
       {!didSearch ? (
         <p className="text-center text-sm text-zinc-500">검색어를 입력하면 결과가 표시됩니다.</p>
       ) : null}
+      {toastMessage ? (
+        <div className="pointer-events-none fixed inset-x-0 bottom-6 z-50 flex justify-center px-4">
+          <p
+            role="status"
+            className="rounded-full bg-zinc-900 px-4 py-2 text-sm font-medium text-white shadow-lg dark:bg-zinc-100 dark:text-zinc-900"
+          >
+            {toastMessage}
+          </p>
+        </div>
+      ) : null}
     </div>
   );
+}
+
+function getBookKey(book: BookSummary): string {
+  return `${book.isbn ?? "no-isbn"}-${book.title}`;
 }

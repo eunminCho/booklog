@@ -1,7 +1,6 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { Button } from "@/components/ui/button";
+import { FixedBackIconHeader } from "@/src/components/navigation/fixed-back-icon-header";
 import { SearchPageClient } from "@/src/components/search/search-page-client";
 import { getCurrentUser } from "@/src/lib/auth/current-user";
 
@@ -23,12 +22,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const initialMock = params.mock?.trim();
 
   return (
-    <main className="min-h-screen bg-zinc-50 px-6 py-10">
-      <div className="mx-auto mb-4 flex w-full max-w-4xl items-center justify-between">
-        <Button asChild variant="outline" size="sm">
-          <Link href="/library">서재로 이동</Link>
-        </Button>
-      </div>
+    <main className="min-h-screen bg-zinc-50 px-6 pb-10 pt-20">
+      <FixedBackIconHeader href="/library" ariaLabel="서재로 돌아가기" />
       <SearchPageClient initialQuery={initialQuery} initialMock={initialMock} />
     </main>
   );

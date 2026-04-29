@@ -2,10 +2,10 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { BookStatusSelect } from "@/src/components/library/book-status-select";
 import { NoteForm } from "@/src/components/library/note-form";
+import { FixedBackIconHeader } from "@/src/components/navigation/fixed-back-icon-header";
 import { getCurrentUser } from "@/src/lib/auth/current-user";
 import { db } from "@/src/lib/db";
 
@@ -75,13 +75,11 @@ export default async function LibraryDetailPage({ params, searchParams }: Librar
   const hasNext = page < totalPages;
 
   return (
-    <main className="min-h-screen bg-zinc-50 px-6 py-10">
+    <main className="min-h-screen bg-zinc-50 px-6 pb-10 pt-20">
+      <FixedBackIconHeader href="/library" ariaLabel="서재로 돌아가기" />
       <div className="mx-auto w-full max-w-4xl space-y-6">
         <section className="rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">
-          <Button asChild variant="outline" size="sm">
-            <Link href="/library">서재로 돌아가기</Link>
-          </Button>
-          <h1 className="mt-3 text-2xl font-semibold">{book.title}</h1>
+          <h1 className="text-2xl font-semibold">{book.title}</h1>
           <p className="mt-1 text-sm text-zinc-700">
             {book.authors.length > 0 ? book.authors.join(", ") : "저자 정보 없음"}
           </p>

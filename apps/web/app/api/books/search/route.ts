@@ -1,6 +1,8 @@
 import { z } from "zod";
 
 import { externalApiErrorToResponse, jsonError } from "@/src/lib/api-error";
+import { requireUser } from "@/src/lib/auth/require-user";
+import { db } from "@/src/lib/db";
 import { searchBooks } from "@/src/lib/google-books";
 
 const searchSchema = z.object({
@@ -8,6 +10,11 @@ const searchSchema = z.object({
 });
 
 export async function GET(request: Request): Promise<Response> {
+  const user = await requireUser();
+  if (user instanceof Response) {
+    return user;
+  }
+
   const url = new URL(request.url);
   const parsed = searchSchema.safeParse({
     q: url.searchParams.get("q") ?? "",
@@ -19,7 +26,37 @@ export async function GET(request: Request): Promise<Response> {
 
   try {
     const books = await searchBooks(parsed.data.q);
-    return Response.json({ ok: true, books });
+    const isbns = books
+      .map((book) => book.isbn)
+      .filter((isbn): isbn is string => Boolean(isbn));
+
+    const existingBooks =
+      isbns.length > 0
+        ? await db.book.findMany({
+            where: {
+              userId: user.id,
+              isbn: { in: isbns },
+            },
+            select: {
+              id: true,
+              isbn: true,
+            },
+          })
+        : [];
+
+    const isbnToLibraryBookId = new Map(
+      existingBooks
+        .filter((book) => Boolean(book.isbn))
+        .map((book) => [book.isbn as string, book.id]),
+    );
+
+    return Response.json({
+      ok: true,
+      books: books.map((book) => ({
+        ...book,
+        libraryBookId: book.isbn ? (isbnToLibraryBookId.get(book.isbn) ?? null) : null,
+      })),
+    });
   } catch (error) {
     return externalApiErrorToResponse(error);
   }

@@ -208,6 +208,7 @@ export const AppWebView = forwardRef<AppWebViewHandle, AppWebViewProps>(function
         onLoadStart={startLoading}
         onLoadEnd={finishLoading}
         onError={finishLoading}
+        webviewDebuggingEnabled
         onLoadProgress={(event) => {
           setLoadProgress(event.nativeEvent.progress);
         }}

@@ -9,7 +9,7 @@ const Tab = createBottomTabNavigator();
 export function MainTabs() {
   return (
     <Tab.Navigator initialRouteName="Library">
-      <Tab.Screen name="Library" component={LibraryScreen} />
+      <Tab.Screen name="Library" options={{ headerShown: false }} component={LibraryScreen} />
       <Tab.Screen name="Scan" component={ScanScreen} />
       <Tab.Screen name="Settings" component={SettingsScreen} />
     </Tab.Navigator>

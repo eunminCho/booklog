@@ -39,7 +39,16 @@ export async function POST(request: Request): Promise<Response> {
       });
 
       if (exists) {
-        return jsonError(409, "FORBIDDEN", "이미 서재에 추가된 책입니다.");
+        return Response.json(
+          {
+            error: {
+              code: "FORBIDDEN",
+              message: "이미 서재에 추가된 책입니다.",
+            },
+            bookId: exists.id,
+          },
+          { status: 409 },
+        );
       }
     }
 

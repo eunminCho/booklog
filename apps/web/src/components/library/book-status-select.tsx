@@ -59,7 +59,7 @@ export function BookStatusSelect({ bookId, initialStatus }: BookStatusSelectProp
 
   return (
     <div className="space-y-2">
-      <label htmlFor={`book-status-${bookId}`} className="text-xs font-medium text-zinc-600">
+      <label htmlFor={`book-status-${bookId}`} className="text-xs font-medium text-zinc-600 mr-1">
         상태
       </label>
       <select

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import type { CSSProperties, ReactNode } from "react";
 import "./globals.css";
 import { AppProviders } from "@/src/providers/app-providers";
@@ -50,7 +51,9 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: earlyDisplayScript }} />
+        <Script id="early-display-script" strategy="beforeInteractive">
+          {earlyDisplayScript}
+        </Script>
       </head>
       <body className="min-h-full flex flex-col">
         <AppProviders>{children}</AppProviders>

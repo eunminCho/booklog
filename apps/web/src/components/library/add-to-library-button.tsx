@@ -13,11 +13,22 @@ type AddToLibraryButtonProps = {
     thumbnail: string | null;
   };
   label?: string;
+  redirectOnSuccess?: boolean;
+  onSuccess?: (bookId: string | null) => void;
+  onAlreadyInLibrary?: (bookId: string | null) => void;
 };
 
 type ApiErrorResponse = {
   error?: {
+    code?: string;
     message?: string;
+  };
+  bookId?: string;
+};
+
+type ApiSuccessResponse = {
+  book?: {
+    id?: string;
   };
 };
 
@@ -29,7 +40,13 @@ const statusOptions = [
 
 type BookStatusValue = (typeof statusOptions)[number]["value"];
 
-export function AddToLibraryButton({ book, label = "서재에 추가" }: AddToLibraryButtonProps) {
+export function AddToLibraryButton({
+  book,
+  label = "서재에 추가",
+  redirectOnSuccess = true,
+  onSuccess,
+  onAlreadyInLibrary,
+}: AddToLibraryButtonProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -56,12 +73,21 @@ export function AddToLibraryButton({ book, label = "서재에 추가" }: AddToLi
 
       if (!response.ok) {
         const data = (await response.json().catch(() => null)) as ApiErrorResponse | null;
+        if (response.status === 409 && data?.error?.code === "FORBIDDEN") {
+          onAlreadyInLibrary?.(data.bookId ?? null);
+          return;
+        }
         setErrorMessage(data?.error?.message ?? "서재에 추가하지 못했습니다.");
         return;
       }
 
-      router.push("/library");
-      router.refresh();
+      const data = (await response.json().catch(() => null)) as ApiSuccessResponse | null;
+
+      if (redirectOnSuccess) {
+        router.push("/library");
+        router.refresh();
+      }
+      onSuccess?.(data?.book?.id ?? null);
     } catch {
       setErrorMessage("네트워크 오류가 발생했습니다. 다시 시도해 주세요.");
     } finally {

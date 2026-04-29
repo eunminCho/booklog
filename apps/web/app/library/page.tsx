@@ -3,16 +3,16 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { LibraryHeaderActions } from "@/src/components/library/library-header-actions";
+import { MobileLibrarySearchFab } from "@/src/components/library/mobile-library-search-fab";
 import { LibraryTabs } from "@/src/components/library/library-tabs";
 import { getCurrentUser } from "@/src/lib/auth/current-user";
 import { db } from "@/src/lib/db";
 
 const PAGE_SIZE = 25;
 
-const tabMap = ["all", "reading", "done", "wishlist"] as const;
-type TabKey = (typeof tabMap)[number];
+type TabKey = "all" | "reading" | "done" | "wishlist";
 
 type LibraryPageProps = {
   searchParams: Promise<{
@@ -92,14 +92,7 @@ export default async function LibraryPage({ searchParams }: LibraryPageProps) {
           <div className="mt-4">
             <LibraryTabs currentTab={tab} />
           </div>
-          <div className="mt-4 flex gap-3">
-            <Button asChild>
-              <Link href="/search">책 검색</Link>
-            </Button>
-            <Button asChild variant="outline">
-              <Link href="/logout">로그아웃</Link>
-            </Button>
-          </div>
+          <LibraryHeaderActions />
         </header>
 
         <section className="space-y-3">
@@ -161,6 +154,7 @@ export default async function LibraryPage({ searchParams }: LibraryPageProps) {
           </div>
         </footer>
       </div>
+      <MobileLibrarySearchFab />
     </main>
   );
 }
