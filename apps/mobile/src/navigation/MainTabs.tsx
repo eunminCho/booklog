@@ -1,5 +1,5 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-
+import { Icon } from "../components/Icon/Icon";
 import { LibraryScreen } from "../screens/tabs/LibraryScreen";
 import { ScanScreen } from "../screens/tabs/ScanScreen";
 import { SettingsScreen } from "../screens/tabs/SettingsScreen";
@@ -18,9 +18,26 @@ export type MainTabParamList = {
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
+const TAB_ICON_SRC_BY_ROUTE: Record<keyof MainTabParamList, "book" | "scan" | "settings"> = {
+  Library: "book",
+  Scan: "scan",
+  Settings: "settings",
+};
+
 export function MainTabs() {
   return (
-    <Tab.Navigator initialRouteName="Library">
+    <Tab.Navigator
+      initialRouteName="Library"
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ color, size }) => (
+          <Icon
+            src={TAB_ICON_SRC_BY_ROUTE[route.name as keyof MainTabParamList]}
+            color={color}
+            size={size}
+          />
+        ),
+      })}
+    >
       <Tab.Screen name="Library" options={{ headerShown: false }} component={LibraryScreen} />
       <Tab.Screen name="Scan" component={ScanScreen} />
       <Tab.Screen name="Settings" component={SettingsScreen} />
