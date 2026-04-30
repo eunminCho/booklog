@@ -27,6 +27,39 @@ BookLog는 웹(`apps/web`)과 모바일(`apps/mobile`)을 함께 개발하는 `p
 └─ ...
 ```
 
+## 상위 아키텍처 다이어그램
+
+```mermaid
+flowchart LR
+  subgraph Mobile["apps/mobile (Expo + React Native)"]
+    MS["Native Screens\n(Auth/Scan/Settings)"]
+    WV["AppWebView"]
+    SS["SecureStore\n(session/theme/fontScale)"]
+  end
+
+  subgraph Bridge["packages/bridge"]
+    BR["zod Schemas + Message Protocol (v1)\nNative <-> Web"]
+  end
+
+  subgraph Web["apps/web (Next.js App Router)"]
+    UI["Web Pages\n(/login, /library, /search ...)"]
+    API["Route Handlers\n(/api/auth, /api/library, /api/books ...)"]
+    PR["Prisma Client"]
+  end
+
+  DB[("PostgreSQL (Neon)")]
+  GB["Google Books API"]
+
+  MS --> WV
+  WV <--> BR
+  BR <--> UI
+  UI --> API
+  API --> PR
+  PR --> DB
+  API --> GB
+  SS -. bootstrap/sync .-> WV
+```
+
 ## 기술 스택
 
 - Web: Next.js(App Router), React, Tailwind CSS, shadcn/ui
