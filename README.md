@@ -117,7 +117,7 @@ npx expo run:android
 
 아래 값으로 Vercel 프로젝트를 수동 연결합니다.
 
-- Build Command: `cd ../.. && pnpm --filter @booklog/web build`
+- Build Command: `cd ../.. && pnpm run build:web:vercel`
 - Install Command: `pnpm install --frozen-lockfile`
 - Output Directory: `apps/web/.next`
 - Root Directory: 비워두기
