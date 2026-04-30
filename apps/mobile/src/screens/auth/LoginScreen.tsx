@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, StyleSheet, Text, TextInput, View } from "react-native";
+import { Button, ScrollView, StyleSheet, Text, TextInput } from "react-native";
 
 import { useAuth } from "../../state/AuthContext";
 
@@ -18,7 +18,7 @@ export function LoginScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: "center", justifyContent: "center", padding: 20, gap: 12 }}>
       <Text style={styles.title}>로그인</Text>
       <TextInput
         value={email}
@@ -28,7 +28,7 @@ export function LoginScreen() {
         keyboardType="email-address"
         autoCorrect={false}
         style={styles.input}
-      />
+        />
       <TextInput
         value={password}
         onChangeText={setPassword}
@@ -37,21 +37,15 @@ export function LoginScreen() {
         autoCapitalize="none"
         autoCorrect={false}
         style={styles.input}
-      />
+        />
       {error ? <Text style={styles.error}>{error}</Text> : null}
       <Button title={isSubmitting ? "로그인 중..." : "로그인"} onPress={() => void handleSignIn()} />
-    </View>
+    </ScrollView>
+
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 20,
-    gap: 12,
-  },
   title: {
     fontSize: 24,
     fontWeight: "700",

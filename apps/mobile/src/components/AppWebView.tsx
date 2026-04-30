@@ -19,7 +19,7 @@ import {
   useState,
 } from "react";
 import { Linking, Platform, StyleSheet, View } from "react-native";
-import { WebView, type WebViewMessageEvent } from "react-native-webview";
+import { WebView } from "react-native-webview";
 
 import { getApiBaseUrl } from "../lib/config";
 import { registerWebViewRef } from "../lib/bridge/webviewRegistry";
@@ -224,7 +224,7 @@ export const AppWebView = forwardRef<AppWebViewHandle, AppWebViewProps>(function
         bounces={false}
         allowsBackForwardNavigationGestures={true}
         injectedJavaScriptBeforeContentLoaded={bootstrapScript}
-        onMessage={handleMessage as (event: WebViewMessageEvent) => void}
+        onMessage={handleMessage}
         onLoadStart={startLoading}
         onLoadEnd={finishLoading}
         onError={finishLoading}
