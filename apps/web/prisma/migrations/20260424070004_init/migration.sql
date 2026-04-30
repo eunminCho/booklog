@@ -21,7 +21,6 @@ CREATE TABLE "Book" (
     "authors" TEXT[],
     "thumbnail" TEXT,
     "status" "BookStatus" NOT NULL DEFAULT 'WISHLIST',
-    "rating" INTEGER,
     "addedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Book_pkey" PRIMARY KEY ("id")

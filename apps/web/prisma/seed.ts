@@ -24,7 +24,6 @@ async function main(): Promise<void> {
         authors: ["Robert C. Martin"],
         thumbnail: "https://example.com/clean-code.jpg",
         status: BookStatus.READING,
-        rating: 5,
       },
     }),
     prisma.book.create({
@@ -35,7 +34,6 @@ async function main(): Promise<void> {
         authors: ["Robert C. Martin"],
         thumbnail: "https://example.com/clean-coder.jpg",
         status: BookStatus.DONE,
-        rating: 4,
       },
     }),
     prisma.book.create({

@@ -31,7 +31,6 @@ model Book {
   authors   String[]
   thumbnail String?
   status    BookStatus @default(WISHLIST)
-  rating    Int?
   addedAt   DateTime   @default(now())
   user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   notes     Note[]

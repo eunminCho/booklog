@@ -85,9 +85,6 @@ export default async function LibraryDetailPage({ params, searchParams }: Librar
           </p>
           <div className="mt-3 flex flex-wrap items-end gap-3 text-xs">
             <BookStatusSelect bookId={book.id} initialStatus={book.status} />
-            {book.rating ? (
-              <Badge variant="secondary">평점 {book.rating}</Badge>
-            ) : null}
             {book.isbn ? <Badge variant="secondary">ISBN {book.isbn}</Badge> : null}
           </div>
         </section>

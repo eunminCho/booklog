@@ -8,10 +8,9 @@ import { db } from "@/src/lib/db";
 const updateBookSchema = z
   .object({
     status: z.nativeEnum(BookStatus).optional(),
-    rating: z.number().int().min(1).max(5).nullable().optional(),
   })
-  .refine((value) => value.status !== undefined || value.rating !== undefined, {
-    message: "status 또는 rating 중 하나는 필요합니다.",
+  .refine((value) => value.status !== undefined, {
+    message: "status 값이 필요합니다.",
   });
 
 type RouteParams = {
@@ -47,7 +46,6 @@ export async function PATCH(request: Request, context: RouteParams): Promise<Res
       where: { id },
       data: {
         status: parsed.data.status,
-        rating: parsed.data.rating,
       },
     });
 
