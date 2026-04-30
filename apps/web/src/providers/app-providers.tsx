@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 
 import { useNativeBridge } from "@/src/hooks/useNativeBridge";
 import { NativeRouteLoadingReporter } from "@/src/components/navigation/native-route-loading-reporter";
@@ -13,7 +13,9 @@ export function AppProviders({ children }: { children: ReactNode }) {
   return (
     <AuthProvider initialAuth={auth}>
       <ThemeProvider initialTheme={theme} initialFontScale={fontScale}>
-        <NativeRouteLoadingReporter />
+        <Suspense fallback={null}>
+          <NativeRouteLoadingReporter />
+        </Suspense>
         {children}
       </ThemeProvider>
     </AuthProvider>
