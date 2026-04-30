@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 import { SESSION_COOKIE_NAME, verifySession } from "@/src/lib/auth/session";
 
-export async function middleware(request: NextRequest): Promise<NextResponse> {
+export async function proxy(request: NextRequest): Promise<NextResponse> {
   const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
 
   if (!token) {
