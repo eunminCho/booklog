@@ -4,7 +4,19 @@ import { LibraryScreen } from "../screens/tabs/LibraryScreen";
 import { ScanScreen } from "../screens/tabs/ScanScreen";
 import { SettingsScreen } from "../screens/tabs/SettingsScreen";
 
-const Tab = createBottomTabNavigator();
+export type MainTabParamList = {
+  Library:
+    | {
+        searchQuery?: string;
+        openSearch?: boolean;
+        searchRequestId?: string;
+      }
+    | undefined;
+  Scan: undefined;
+  Settings: undefined;
+};
+
+const Tab = createBottomTabNavigator<MainTabParamList>();
 
 export function MainTabs() {
   return (

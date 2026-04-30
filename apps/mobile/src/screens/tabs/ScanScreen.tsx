@@ -1,10 +1,11 @@
 import { CameraView, type BarcodeScanningResult, useCameraPermissions } from "expo-camera";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useNavigation } from "@react-navigation/native";
+import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
+import { useCallback, useRef, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import { AppWebView } from "../../components/AppWebView";
+import type { MainTabParamList } from "../../navigation/MainTabs";
 
-const SCAN_TIMEOUT_MS = 5000;
 
 function isValidIsbn13(value: string): boolean {
   if (!/^\d{13}$/.test(value)) {
@@ -25,26 +26,12 @@ function isValidIsbn13(value: string): boolean {
 }
 
 export function ScanScreen() {
+  const navigation = useNavigation<BottomTabNavigationProp<MainTabParamList, "Scan">>();
   const [permission, requestPermission] = useCameraPermissions();
   const [flashEnabled, setFlashEnabled] = useState(false);
-  const [manualVisible, setManualVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [webPath, setWebPath] = useState<string | null>(null);
   const hasCompletedRef = useRef(false);
 
-  useEffect(() => {
-    if (webPath) {
-      return;
-    }
-
-    const timeoutId = setTimeout(() => {
-      setManualVisible(true);
-    }, SCAN_TIMEOUT_MS);
-
-    return () => {
-      clearTimeout(timeoutId);
-    };
-  }, [webPath]);
 
   const handleBarcodeScanned = useCallback((result: BarcodeScanningResult) => {
     if (hasCompletedRef.current) {
@@ -54,14 +41,16 @@ export function ScanScreen() {
     const data = result.data.trim();
     if (!isValidIsbn13(data)) {
       setErrorMessage("ISBN 바코드를 찾지 못했어요. 책 바코드를 다시 비춰 주세요.");
-      setManualVisible(true);
       return;
     }
 
     hasCompletedRef.current = true;
     setErrorMessage(null);
-    setWebPath(`/books/add?isbn=${encodeURIComponent(data)}`);
-  }, []);
+    navigation.navigate("Library", {
+      searchQuery: data,
+      searchRequestId: `${Date.now()}-${data}`,
+    });
+  }, [navigation]);
 
   if (!permission) {
     return (
@@ -81,10 +70,6 @@ export function ScanScreen() {
         </Pressable>
       </View>
     );
-  }
-
-  if (webPath) {
-    return <AppWebView path={webPath} />;
   }
 
   return (
@@ -108,17 +93,18 @@ export function ScanScreen() {
             <Text style={styles.secondaryButtonText}>{flashEnabled ? "플래시 끄기" : "플래시 켜기"}</Text>
           </Pressable>
 
-          {manualVisible ? (
             <Pressable
               style={styles.primaryButton}
               onPress={() => {
                 hasCompletedRef.current = true;
-                setWebPath("/search");
+                navigation.navigate("Library", {
+                  openSearch: true,
+                  searchRequestId: `${Date.now()}-manual`,
+                });
               }}
             >
               <Text style={styles.primaryButtonText}>수동 입력</Text>
             </Pressable>
-          ) : null}
         </View>
       </View>
     </View>
