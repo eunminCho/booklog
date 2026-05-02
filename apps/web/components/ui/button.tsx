@@ -1,40 +1,100 @@
+"use client";
+
+import Link, { type LinkProps } from "next/link";
 import * as React from "react";
-import { Slot } from "@radix-ui/react-slot";
-import { cva, type VariantProps } from "class-variance-authority";
+import type { CSSObject, Theme } from "@emotion/react";
+import styled from "@emotion/styled";
 
-import { cn } from "@/lib/utils";
+type ButtonVariant = "default" | "outline" | "ghost";
+type ButtonSize = "default" | "sm" | "lg";
 
-const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition disabled:pointer-events-none disabled:opacity-50",
-  {
-    variants: {
-      variant: {
-        default: "bg-black text-white hover:bg-zinc-800",
-        outline: "border border-zinc-300 bg-white text-zinc-900 hover:bg-zinc-100",
-        ghost: "text-zinc-900 hover:bg-zinc-100",
-      },
-      size: {
-        default: "h-9 px-4 py-2",
-        sm: "h-8 rounded-md px-3 text-xs",
-        lg: "h-10 rounded-md px-8",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-      size: "default",
-    },
-  },
-);
+type ButtonStyleProps = {
+  variant: ButtonVariant;
+  size: ButtonSize;
+  fullWidth: boolean;
+};
 
-type ButtonProps = React.ComponentProps<"button"> &
-  VariantProps<typeof buttonVariants> & {
-    asChild?: boolean;
+type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  fullWidth?: boolean;
+};
+
+type ButtonLinkProps = Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, "href"> &
+  LinkProps & {
+    variant?: ButtonVariant;
+    size?: ButtonSize;
+    fullWidth?: boolean;
   };
 
-function Button({ className, variant, size, asChild = false, ...props }: ButtonProps) {
-  const Comp = asChild ? Slot : "button";
+function resolveButtonStyle({ theme, variant, size, fullWidth }: { theme: Theme } & ButtonStyleProps) {
+  const base: CSSObject = {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: theme.spacing.sm,
+    whiteSpace: "nowrap" as const,
+    borderRadius: theme.radius.md,
+    border: "1px solid transparent",
+    fontWeight: 600,
+    cursor: "pointer",
+    transition: "all 0.15s ease",
+    textDecoration: "none",
+    width: fullWidth ? "100%" : "auto",
+  };
 
-  return <Comp className={cn(buttonVariants({ variant, size, className }))} {...props} />;
+  const sizes: Record<ButtonSize, CSSObject> = {
+    default: { minHeight: 36, padding: "8px 16px", fontSize: theme.typography.sm },
+    sm: { minHeight: 32, padding: "6px 12px", fontSize: theme.typography.xs },
+    lg: { minHeight: 40, padding: "10px 24px", fontSize: theme.typography.body },
+  };
+
+  const variants: Record<ButtonVariant, CSSObject> = {
+    default: {
+      backgroundColor: theme.colors.brand.primary,
+      color: theme.colors.text.inverse,
+      "&:hover": { backgroundColor: theme.colors.surface.subtle },
+    },
+    outline: {
+      backgroundColor: theme.colors.surface.default,
+      borderColor: theme.colors.border.subtle,
+      color: theme.colors.text.primary,
+      "&:hover": { backgroundColor: theme.colors.surface.subtle },
+    },
+    ghost: {
+      backgroundColor: "transparent",
+      color: theme.colors.text.primary,
+      "&:hover": { backgroundColor: theme.colors.surface.subtle },
+    },
+  };
+
+  return {
+    ...base,
+    ...sizes[size],
+    ...variants[variant],
+    "&:disabled": {
+      opacity: 0.6,
+      pointerEvents: "none" as const,
+    },
+  };
 }
 
-export { Button, buttonVariants };
+const shouldForwardButtonProp = (prop: string) => !["variant", "size", "fullWidth"].includes(prop);
+
+const StyledButton = styled("button", { shouldForwardProp: shouldForwardButtonProp })<ButtonStyleProps>(
+  resolveButtonStyle,
+);
+
+const StyledButtonLink = styled(Link, { shouldForwardProp: shouldForwardButtonProp })<ButtonStyleProps>(
+  resolveButtonStyle,
+);
+
+function Button({ variant = "default", size = "default", fullWidth = false, ...props }: ButtonProps) {
+  return <StyledButton variant={variant} size={size} fullWidth={fullWidth} {...props} />;
+}
+
+function ButtonLink({ variant = "default", size = "default", fullWidth = false, ...props }: ButtonLinkProps) {
+  return <StyledButtonLink variant={variant} size={size} fullWidth={fullWidth} {...props} />;
+}
+
+export { Button, ButtonLink };

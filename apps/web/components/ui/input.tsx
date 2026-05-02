@@ -1,18 +1,34 @@
+"use client";
+
 import * as React from "react";
+import styled from "@emotion/styled";
 
-import { cn } from "@/lib/utils";
+const StyledInput = styled.input(({ theme }) => ({
+  width: "100%",
+  minHeight: 36,
+  borderRadius: theme.radius.md,
+  border: `1px solid ${theme.colors.border.subtle}`,
+  backgroundColor: theme.colors.surface.default,
+  color: theme.colors.text.primary,
+  padding: "8px 12px",
+  fontSize: theme.typography.sm,
+  outline: "none",
+  transition: "all 0.15s ease",
+  "&::placeholder": {
+    color: theme.colors.text.muted,
+  },
+  "&:focus-visible": {
+    borderColor: theme.colors.border.default,
+    boxShadow: `0 0 0 2px ${theme.colors.surface.subtle}`,
+  },
+  "&:disabled": {
+    opacity: 0.6,
+    cursor: "not-allowed",
+  },
+}));
 
-function Input({ className, type, ...props }: React.ComponentProps<"input">) {
-  return (
-    <input
-      type={type}
-      className={cn(
-        "flex h-9 w-full rounded-md border border-zinc-300 bg-white px-3 py-1 text-sm outline-none ring-blue-300 placeholder:text-zinc-400 focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50",
-        className,
-      )}
-      {...props}
-    />
-  );
+function Input({ type, ...props }: React.ComponentProps<"input">) {
+  return <StyledInput type={type} {...props} />;
 }
 
 export { Input };

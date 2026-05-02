@@ -1,27 +1,28 @@
+"use client";
+
 import * as React from "react";
-import { cva, type VariantProps } from "class-variance-authority";
+import styled from "@emotion/styled";
 
-import { cn } from "@/lib/utils";
+type BadgeVariant = "default" | "secondary";
 
-const badgeVariants = cva(
-  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition",
-  {
-    variants: {
-      variant: {
-        default: "border-zinc-300 bg-zinc-100 text-zinc-900",
-        secondary: "border-zinc-200 bg-white text-zinc-700",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-    },
-  },
-);
-
-type BadgeProps = React.ComponentProps<"span"> & VariantProps<typeof badgeVariants>;
+type BadgeProps = React.ComponentProps<"span"> & {
+  variant?: BadgeVariant;
+};
 
 function Badge({ className, variant, ...props }: BadgeProps) {
-  return <span className={cn(badgeVariants({ variant }), className)} {...props} />;
+  return <BadgeRoot className={className} variant={variant ?? "default"} {...props} />;
 }
 
-export { Badge, badgeVariants };
+const BadgeRoot = styled.span<{ variant: BadgeVariant }>(({ theme, variant }) => ({
+  display: "inline-flex",
+  alignItems: "center",
+  borderRadius: theme.radius.full,
+  border: `1px solid ${variant === "default" ? theme.colors.border.default : theme.colors.border.subtle}`,
+  backgroundColor: variant === "default" ? theme.colors.surface.subtle : theme.colors.surface.default,
+  color: variant === "default" ? theme.colors.text.primary : theme.colors.text.secondary,
+  padding: "2px 10px",
+  fontSize: theme.typography.xs,
+  fontWeight: 600,
+}));
+
+export { Badge };

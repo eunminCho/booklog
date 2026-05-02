@@ -1,29 +1,59 @@
+"use client";
+
 import * as React from "react";
+import styled from "@emotion/styled";
 
-import { cn } from "@/lib/utils";
+type CardProps = React.ComponentProps<typeof CardRoot>;
+type CardSectionProps = React.ComponentProps<typeof CardSection>;
 
-function Card({ className, ...props }: React.ComponentProps<"div">) {
-  return <div className={cn("rounded-lg border border-zinc-200 bg-white shadow-sm", className)} {...props} />;
+const CardRoot = styled.div(({ theme }) => ({
+  borderRadius: theme.radius.lg,
+  border: `1px solid ${theme.colors.border.subtle}`,
+  backgroundColor: theme.colors.surface.default,
+  boxShadow: theme.shadow.sm,
+}));
+
+const CardSection = styled.div(({ theme }) => ({
+  padding: theme.spacing.xl,
+}));
+
+function Card({ ...props }: CardProps) {
+  return <CardRoot {...props} />;
 }
 
-function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
-  return <div className={cn("flex flex-col space-y-1.5 p-6", className)} {...props} />;
+function CardHeader({ ...props }: CardSectionProps) {
+  return (
+    <CardSection
+      style={{ display: "flex", flexDirection: "column", gap: 6 }}
+      {...props}
+    />
+  );
 }
 
-function CardTitle({ className, ...props }: React.ComponentProps<"h3">) {
-  return <h3 className={cn("text-2xl font-semibold leading-none tracking-tight", className)} {...props} />;
+function CardTitle({ ...props }: React.ComponentProps<"h3">) {
+  return (
+    <h3
+      style={{ margin: 0, fontSize: "1.5rem", fontWeight: 600, lineHeight: 1.2, letterSpacing: "-0.01em" }}
+      {...props}
+    />
+  );
 }
 
-function CardDescription({ className, ...props }: React.ComponentProps<"p">) {
-  return <p className={cn("text-sm text-zinc-600", className)} {...props} />;
+function CardDescription({ ...props }: React.ComponentProps<"p">) {
+  return <p style={{ margin: 0, fontSize: "0.875rem" }} {...props} />;
 }
 
-function CardContent({ className, ...props }: React.ComponentProps<"div">) {
-  return <div className={cn("p-6 pt-0", className)} {...props} />;
+function CardContent({ style, ...props }: React.ComponentProps<"div">) {
+  return <CardSection style={{ paddingTop: 0, ...style }} {...props} />;
 }
 
-function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
-  return <div className={cn("flex items-center p-6 pt-0", className)} {...props} />;
+function CardFooter({ style, ...props }: React.ComponentProps<"div">) {
+  return (
+    <CardSection
+      style={{ paddingTop: 0, display: "flex", alignItems: "center", ...style }}
+      {...props}
+    />
+  );
 }
 
 export { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle };

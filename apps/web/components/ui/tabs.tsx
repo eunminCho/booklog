@@ -2,44 +2,75 @@
 
 import * as React from "react";
 import * as TabsPrimitive from "@radix-ui/react-tabs";
+import styled from "@emotion/styled";
 
-import { cn } from "@/lib/utils";
+const TabsRoot = styled(TabsPrimitive.Root)({
+  display: "flex",
+  flexDirection: "column",
+  gap: 8,
+});
 
-function Tabs({ className, ...props }: React.ComponentProps<typeof TabsPrimitive.Root>) {
-  return <TabsPrimitive.Root className={cn("flex flex-col gap-2", className)} {...props} />;
+const TabsListRoot = styled(TabsPrimitive.List)(({ theme }) => ({
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  minHeight: 36,
+  borderRadius: theme.radius.lg,
+  border: `1px solid ${theme.colors.border.subtle}`,
+  backgroundColor: theme.colors.surface.subtle,
+  padding: 4,
+  color: theme.colors.text.secondary,
+}));
+
+const TabsTriggerRoot = styled(TabsPrimitive.Trigger)(({ theme }) => ({
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  whiteSpace: "nowrap",
+  borderRadius: theme.radius.md,
+  padding: "6px 12px",
+  fontSize: theme.typography.sm,
+  fontWeight: 600,
+  color: theme.colors.text.secondary,
+  border: "none",
+  backgroundColor: "transparent",
+  transition: "all 0.15s ease",
+  "&[data-state='active']": {
+    backgroundColor: theme.colors.surface.default,
+    color: theme.colors.text.primary,
+    boxShadow: theme.shadow.sm,
+  },
+  "&:focus-visible": {
+    outline: "none",
+    boxShadow: `0 0 0 2px ${theme.colors.surface.selected}`,
+  },
+  "&:disabled": {
+    opacity: 0.5,
+    pointerEvents: "none",
+  },
+}));
+
+const TabsContentRoot = styled(TabsPrimitive.Content)(({ theme }) => ({
+  "&:focus-visible": {
+    outline: "none",
+    boxShadow: `0 0 0 2px ${theme.colors.surface.selected}`,
+  },
+}));
+
+function Tabs(props: React.ComponentProps<typeof TabsPrimitive.Root>) {
+  return <TabsRoot {...props} />;
 }
 
-function TabsList({ className, ...props }: React.ComponentProps<typeof TabsPrimitive.List>) {
-  return (
-    <TabsPrimitive.List
-      className={cn(
-        "inline-flex h-9 items-center justify-center rounded-lg border border-zinc-200 bg-zinc-100 p-1 text-zinc-500",
-        className,
-      )}
-      {...props}
-    />
-  );
+function TabsList(props: React.ComponentProps<typeof TabsPrimitive.List>) {
+  return <TabsListRoot {...props} />;
 }
 
-function TabsTrigger({ className, ...props }: React.ComponentProps<typeof TabsPrimitive.Trigger>) {
-  return (
-    <TabsPrimitive.Trigger
-      className={cn(
-        "inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-white data-[state=active]:text-zinc-900 data-[state=active]:shadow-sm",
-        className,
-      )}
-      {...props}
-    />
-  );
+function TabsTrigger(props: React.ComponentProps<typeof TabsPrimitive.Trigger>) {
+  return <TabsTriggerRoot {...props} />;
 }
 
-function TabsContent({ className, ...props }: React.ComponentProps<typeof TabsPrimitive.Content>) {
-  return (
-    <TabsPrimitive.Content
-      className={cn("ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400", className)}
-      {...props}
-    />
-  );
+function TabsContent(props: React.ComponentProps<typeof TabsPrimitive.Content>) {
+  return <TabsContentRoot {...props} />;
 }
 
 export { Tabs, TabsContent, TabsList, TabsTrigger };
