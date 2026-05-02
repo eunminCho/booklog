@@ -116,7 +116,7 @@ export function ScanScreen() {
                 });
               }}
             >
-              <Text style={[styles.primaryButtonText, { color: colors.text.inverse }]}>수동 입력</Text>
+              <Text style={[styles.primaryButtonText, { color: colors.text.primary }]}>수동 입력</Text>
             </Pressable>
         </View>
       </View>

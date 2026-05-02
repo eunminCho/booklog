@@ -66,11 +66,14 @@ type HeadingProps = {
 };
 
 function Heading({ level = 1, style, children }: HeadingProps) {
+  const theme = useTheme();
+
   return React.createElement(
     `h${level}`,
     {
       style: {
         margin: 0,
+        color: theme.colors.text.primary,
         fontWeight: 700,
         lineHeight: 1.2,
         fontSize: level === 1 ? "1.75rem" : level === 2 ? "1.35rem" : "1.1rem",
