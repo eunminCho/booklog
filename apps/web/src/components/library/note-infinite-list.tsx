@@ -28,26 +28,29 @@ type NoteInfiniteListProps = {
 };
 
 export function NoteInfiniteList({ bookId, initialNotes, initialHasMore, pageSize }: NoteInfiniteListProps) {
-  const [notes, setNotes] = useState<NoteItem[]>(initialNotes);
+  const [notes, setNotes] = useState<NoteItem[]>(() => dedupeNotesById(initialNotes));
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [nextOffset, setNextOffset] = useState(initialNotes.length);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [loadMoreError, setLoadMoreError] = useState(false);
   const triggerRef = useRef<HTMLDivElement | null>(null);
+  const isRequestInFlightRef = useRef(false);
 
   useEffect(() => {
-    setNotes(initialNotes);
+    setNotes(dedupeNotesById(initialNotes));
     setHasMore(initialHasMore);
     setNextOffset(initialNotes.length);
     setIsLoadingMore(false);
     setLoadMoreError(false);
+    isRequestInFlightRef.current = false;
   }, [bookId, initialHasMore, initialNotes]);
 
   const loadMore = useCallback(async (): Promise<void> => {
-    if (!hasMore || isLoadingMore) {
+    if (!hasMore || isLoadingMore || isRequestInFlightRef.current) {
       return;
     }
 
+    isRequestInFlightRef.current = true;
     setIsLoadingMore(true);
     setLoadMoreError(false);
 
@@ -62,12 +65,13 @@ export function NoteInfiniteList({ bookId, initialNotes, initialHasMore, pageSiz
       }
 
       const nextNotes = data?.notes ?? [];
-      setNotes((prev) => [...prev, ...nextNotes]);
+      setNotes((prev) => dedupeNotesById([...prev, ...nextNotes]));
       setHasMore(data?.hasMore ?? false);
       setNextOffset(data?.nextOffset ?? nextOffset + nextNotes.length);
     } catch {
       setLoadMoreError(true);
     } finally {
+      isRequestInFlightRef.current = false;
       setIsLoadingMore(false);
     }
   }, [bookId, hasMore, isLoadingMore, nextOffset, pageSize]);
@@ -146,4 +150,12 @@ export function NoteInfiniteList({ bookId, initialNotes, initialHasMore, pageSiz
       <div ref={triggerRef} aria-hidden="true" style={{ height: 1 }} />
     </Stack>
   );
+}
+
+function dedupeNotesById(items: NoteItem[]): NoteItem[] {
+  const map = new Map<string, NoteItem>();
+  for (const item of items) {
+    map.set(item.id, item);
+  }
+  return Array.from(map.values());
 }

@@ -8,7 +8,7 @@ import {
   postToNative,
   type AuthPayload,
 } from "@booklog/bridge";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 type UseNativeBridgeResult = {
   auth: AuthPayload | null;
@@ -39,12 +39,18 @@ function readBootstrap() {
 }
 
 export function useNativeBridge(): UseNativeBridgeResult {
-  const initial = useMemo(() => readBootstrap(), []);
-  const [auth, setAuth] = useState<AuthPayload | null>(initial?.auth ?? null);
-  const [theme, setTheme] = useState<"light" | "dark" | "system">(initial?.theme ?? "system");
-  const [fontScale, setFontScale] = useState<number>(initial?.fontScale ?? 1);
+  const [auth, setAuth] = useState<AuthPayload | null>(null);
+  const [theme, setTheme] = useState<"light" | "dark" | "system">("system");
+  const [fontScale, setFontScale] = useState<number>(1);
 
   useEffect(() => {
+    const initial = readBootstrap();
+    if (initial) {
+      setAuth(initial.auth);
+      setTheme(initial.theme);
+      setFontScale(initial.fontScale);
+    }
+
     const dispose = createWebReceiver({
       logger,
       onMessage: (message) => {
@@ -83,7 +89,7 @@ export function useNativeBridge(): UseNativeBridgeResult {
     );
 
     return dispose;
-  }, [initial]);
+  }, []);
 
   return {
     auth,
