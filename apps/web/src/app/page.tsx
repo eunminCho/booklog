@@ -1,8 +1,16 @@
+import { redirect } from "next/navigation";
+
 import { ButtonLink } from "@/components/ui/button";
 import { Container, Inline, Page, Stack, Surface } from "@/components/ui/layout";
 import { Heading, Text } from "@/components/ui/text";
+import { getCurrentUser } from "@/src/lib/auth/current-user";
 
-export default function Home() {
+export default async function Home() {
+  const user = await getCurrentUser();
+  if (user) {
+    redirect("/library");
+  }
+
   return (
     <Page style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
       <Container style={{ maxWidth: 560 }}>
@@ -16,9 +24,6 @@ export default function Home() {
               <ButtonLink href="/signup">회원가입</ButtonLink>
               <ButtonLink href="/login" variant="outline">
                 로그인
-              </ButtonLink>
-              <ButtonLink href="/library" variant="outline">
-                보호 경로 이동
               </ButtonLink>
             </Inline>
           </Stack>
