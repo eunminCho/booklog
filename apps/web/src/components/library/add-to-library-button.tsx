@@ -1,9 +1,12 @@
 "use client";
 
+import styled from "@emotion/styled";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
+import { Stack } from "@/components/ui/layout";
+import { Text } from "@/components/ui/text";
 
 type AddToLibraryButtonProps = {
   book: {
@@ -96,14 +99,15 @@ export function AddToLibraryButton({
   }
 
   return (
-    <div className="space-y-2">
-      <label className="block space-y-1">
-        <span className="text-xs text-zinc-600">상태</span>
-        <select
+    <Stack gap={8}>
+      <Stack gap={6}>
+        <Text as="span" size="xs" tone="secondary">
+          상태
+        </Text>
+        <SelectField
           value={status}
           onChange={(event) => setStatus(event.target.value as BookStatusValue)}
           disabled={isSubmitting}
-          className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm outline-none ring-blue-300 focus:ring-2 disabled:opacity-60"
           aria-label="서재 상태 선택"
         >
           {statusOptions.map((option) => (
@@ -111,21 +115,49 @@ export function AddToLibraryButton({
               {option.label}
             </option>
           ))}
-        </select>
-      </label>
+        </SelectField>
+      </Stack>
       <Button
         type="button"
         onClick={handleClick}
         disabled={isSubmitting}
-        className="w-full"
+        fullWidth
       >
         {isSubmitting ? "추가 중..." : label}
       </Button>
       {errorMessage ? (
-        <p role="alert" className="rounded-md bg-red-50 px-3 py-2 text-xs text-red-700">
+        <ErrorBox role="alert">
           {errorMessage}
-        </p>
+        </ErrorBox>
       ) : null}
-    </div>
+    </Stack>
   );
 }
+
+const SelectField = styled.select(({ theme }) => ({
+  width: "100%",
+  borderRadius: theme.radius.md,
+  border: `1px solid ${theme.colors.border.subtle}`,
+  backgroundColor: theme.colors.surface.default,
+  color: theme.colors.text.primary,
+  padding: "8px 12px",
+  fontSize: theme.typography.sm,
+  outline: "none",
+  "&:focus-visible": {
+    borderColor: theme.colors.border.default,
+    boxShadow: `0 0 0 2px ${theme.colors.surface.subtle}`,
+  },
+  "&:disabled": {
+    opacity: 0.6,
+  },
+}));
+
+const ErrorBox = styled.p(({ theme }) => ({
+  margin: 0,
+  borderRadius: theme.radius.md,
+  padding: "8px 10px",
+  fontSize: theme.typography.xs,
+  color: theme.colors.feedback.error,
+  backgroundColor: theme.colors.surface.subtle,
+  border: `1px solid ${theme.colors.border.subtle}`,
+}));

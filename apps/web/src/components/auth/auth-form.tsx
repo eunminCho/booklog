@@ -1,8 +1,14 @@
 "use client";
 
+import styled from "@emotion/styled";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Stack } from "@/components/ui/layout";
+import { Text } from "@/components/ui/text";
 
 type AuthMode = "login" | "signup";
 
@@ -55,27 +61,22 @@ export function AuthForm({ mode }: AuthFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex w-full max-w-sm flex-col gap-4">
-      <div className="flex flex-col gap-1">
-        <label htmlFor={`${mode}-email`} className="text-sm font-medium">
-          이메일
-        </label>
-        <input
+    <FormRoot onSubmit={handleSubmit}>
+      <Stack gap={6}>
+        <FieldLabel htmlFor={`${mode}-email`}>이메일</FieldLabel>
+        <Input
           id={`${mode}-email`}
           type="email"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
           required
           autoComplete="email"
-          className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none ring-blue-300 focus:ring-2"
         />
-      </div>
+      </Stack>
 
-      <div className="flex flex-col gap-1">
-        <label htmlFor={`${mode}-password`} className="text-sm font-medium">
-          비밀번호
-        </label>
-        <input
+      <Stack gap={6}>
+        <FieldLabel htmlFor={`${mode}-password`}>비밀번호</FieldLabel>
+        <Input
           id={`${mode}-password`}
           type="password"
           value={password}
@@ -83,30 +84,49 @@ export function AuthForm({ mode }: AuthFormProps) {
           required
           minLength={8}
           autoComplete={isLogin ? "current-password" : "new-password"}
-          className="rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none ring-blue-300 focus:ring-2"
         />
-      </div>
+      </Stack>
 
       {errorMessage ? (
-        <p role="alert" className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+        <ErrorBox role="alert">
           {errorMessage}
-        </p>
+        </ErrorBox>
       ) : null}
 
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className="rounded-md bg-black px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
-      >
+      <Button type="submit" disabled={isSubmitting} fullWidth>
         {isSubmitting ? "처리 중..." : isLogin ? "로그인" : "가입하기"}
-      </button>
+      </Button>
 
-      <p className="text-sm text-zinc-600">
+      <Text as="p" size="sm" tone="secondary">
         {isLogin ? "계정이 없나요?" : "이미 계정이 있나요?"}{" "}
-        <Link href={isLogin ? "/signup" : "/login"} className="underline">
+        <Link href={isLogin ? "/signup" : "/login"} style={{ textDecoration: "underline" }}>
           {isLogin ? "회원가입" : "로그인"}
         </Link>
-      </p>
-    </form>
+      </Text>
+    </FormRoot>
   );
 }
+
+const FormRoot = styled.form({
+  display: "flex",
+  flexDirection: "column",
+  width: "100%",
+  maxWidth: 360,
+  gap: 16,
+});
+
+const FieldLabel = styled.label(({ theme }) => ({
+  fontSize: theme.typography.sm,
+  fontWeight: 600,
+  color: theme.colors.text.primary,
+}));
+
+const ErrorBox = styled.p(({ theme }) => ({
+  margin: 0,
+  borderRadius: theme.radius.md,
+  padding: "10px 12px",
+  fontSize: theme.typography.sm,
+  color: theme.colors.feedback.error,
+  backgroundColor: theme.colors.surface.subtle,
+  border: `1px solid ${theme.colors.border.subtle}`,
+}));

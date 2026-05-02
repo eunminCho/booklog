@@ -1,3 +1,11 @@
+"use client";
+
+import styled from "@emotion/styled";
+
+import { Button } from "@/components/ui/button";
+import { Stack } from "@/components/ui/layout";
+import { Heading, Text } from "@/components/ui/text";
+
 type ExternalApiState = "loading" | "empty" | "offline" | "rateLimit" | "upstream" | "notFound";
 
 type ExternalApiErrorProps = {
@@ -50,29 +58,40 @@ export function ExternalApiError({ state, onRetry, retryAfterSec }: ExternalApiE
   const config = stateConfig[state];
 
   return (
-    <div
-      role="alert"
-      className="flex flex-col items-center justify-center rounded-lg border border-zinc-200 bg-white px-6 py-10 text-center shadow-sm"
-    >
-      <span aria-hidden className="text-2xl">
-        {config.icon}
-      </span>
-      <p className="mt-3 text-lg font-semibold">{config.title}</p>
-      <p className="mt-1 text-sm text-zinc-600">{config.description}</p>
+    <ErrorSurface role="alert">
+      <Stack gap={10} style={{ alignItems: "center" }}>
+        <Icon aria-hidden>{config.icon}</Icon>
+        <Heading level={3}>{config.title}</Heading>
+        <Text size="sm" tone="secondary" style={{ textAlign: "center" }}>
+          {config.description}
+        </Text>
+      </Stack>
       {state === "rateLimit" && retryAfterSec ? (
-        <p className="mt-2 text-xs text-zinc-500">약 {retryAfterSec}초 후 재시도할 수 있습니다.</p>
+        <Text size="xs" tone="muted" style={{ textAlign: "center", marginTop: 8 }}>
+          약 {retryAfterSec}초 후 재시도할 수 있습니다.
+        </Text>
       ) : null}
       {onRetry ? (
-        <button
-          type="button"
-          onClick={onRetry}
-          className="mt-4 rounded-md border border-zinc-300 px-4 py-2 text-sm"
-        >
+        <Button type="button" variant="outline" size="sm" onClick={onRetry} style={{ marginTop: 16 }}>
           다시 시도
-        </button>
+        </Button>
       ) : null}
-    </div>
+    </ErrorSurface>
   );
 }
 
 export type { ExternalApiState };
+
+const ErrorSurface = styled.div(({ theme }) => ({
+  borderRadius: theme.radius.lg,
+  border: `1px solid ${theme.colors.border.subtle}`,
+  backgroundColor: theme.colors.surface.default,
+  boxShadow: theme.shadow.sm,
+  padding: "40px 24px",
+  textAlign: "center",
+}));
+
+const Icon = styled.span({
+  fontSize: "1.6rem",
+  lineHeight: 1,
+});

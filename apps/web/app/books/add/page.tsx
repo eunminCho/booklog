@@ -1,8 +1,9 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { Button } from "@/components/ui/button";
+import { ButtonLink } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Container, Page, Stack } from "@/components/ui/layout";
+import { Text } from "@/components/ui/text";
 import { ExternalApiError, type ExternalApiState } from "@/src/components/errors/ExternalApiError";
 import { AddToLibraryButton } from "@/src/components/library/add-to-library-button";
 import { getCurrentUser } from "@/src/lib/auth/current-user";
@@ -58,44 +59,48 @@ export default async function BooksAddPage({ searchParams }: BooksAddPageProps) 
   }
 
   return (
-    <main className="min-h-screen bg-zinc-50 px-6 py-10">
-      <div className="mx-auto w-full max-w-4xl space-y-6">
-        <div>
-          <Button asChild variant="outline" size="sm">
-            <Link href="/search">검색으로 돌아가기</Link>
-          </Button>
-        </div>
+    <Page>
+      <Container>
+        <Stack gap={24}>
+          <div>
+            <ButtonLink href="/search" variant="outline" size="sm">
+              검색으로 돌아가기
+            </ButtonLink>
+          </div>
         {isbn && book ? (
           <Card>
             <CardHeader>
               <CardTitle>이 책을 내 서재에 추가할까요?</CardTitle>
-              <p className="text-sm text-zinc-700">
+              <Text size="sm" tone="secondary">
                 {book.title} {book.authors.length > 0 ? `· ${book.authors.join(", ")}` : ""}
-              </p>
+              </Text>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <p className="text-sm text-zinc-600">ISBN {isbn}</p>
+            <CardContent style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <Text size="sm" tone="secondary">ISBN {isbn}</Text>
               <AddToLibraryButton book={book} label="내 서재에 추가" />
             </CardContent>
           </Card>
         ) : null}
         {isbn && !book ? (
-          <div className="space-y-3">
+          <Stack gap={12}>
             <ExternalApiError state={state ?? "notFound"} retryAfterSec={retryAfterSec} />
-            <Button asChild variant="outline" size="sm">
-              <Link href="/search">제목으로 검색</Link>
-            </Button>
-          </div>
+            <ButtonLink href="/search" variant="outline" size="sm">
+              제목으로 검색
+            </ButtonLink>
+          </Stack>
         ) : null}
         {!isbn ? (
           <Card>
             <CardHeader>
-              <CardTitle className="text-xl">ISBN이 필요합니다</CardTitle>
+              <CardTitle style={{ fontSize: "1.25rem" }}>ISBN이 필요합니다</CardTitle>
             </CardHeader>
-            <CardContent className="text-sm text-zinc-600">`/books/add?isbn=...` 형식으로 접근해 주세요.</CardContent>
+            <CardContent>
+              <Text size="sm" tone="secondary">`/books/add?isbn=...` 형식으로 접근해 주세요.</Text>
+            </CardContent>
           </Card>
         ) : null}
-      </div>
-    </main>
+        </Stack>
+      </Container>
+    </Page>
   );
 }

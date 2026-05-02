@@ -1,8 +1,7 @@
 "use client";
 
-import Link from "next/link";
-
-import { Button } from "@/components/ui/button";
+import { ButtonLink } from "@/components/ui/button";
+import { Inline } from "@/components/ui/layout";
 import { useIsNativeWebView } from "@/src/hooks/useIsNativeWebView";
 
 export function LibraryHeaderActions() {
@@ -17,13 +16,11 @@ export function LibraryHeaderActions() {
   }
 
   return (
-    <div className="mt-4 flex gap-3">
-      <Button asChild>
-        <Link href="/search">책 검색</Link>
-      </Button>
-      <Button asChild variant="outline">
-        <Link href="/logout">로그아웃</Link>
-      </Button>
-    </div>
+    <Inline gap={12} style={{ marginTop: 16 }}>
+      <ButtonLink href="/search">책 검색</ButtonLink>
+      <ButtonLink href="/logout" variant="outline">
+        로그아웃
+      </ButtonLink>
+    </Inline>
   );
 }

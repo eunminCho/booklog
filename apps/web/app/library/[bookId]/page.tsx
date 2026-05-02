@@ -1,8 +1,10 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 import { Badge } from "@/components/ui/badge";
+import { ButtonLink } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Container, Inline, Page, Stack, Surface } from "@/components/ui/layout";
+import { Heading, Text } from "@/components/ui/text";
 import { BookStatusSelect } from "@/src/components/library/book-status-select";
 import { NoteForm } from "@/src/components/library/note-form";
 import { FixedBackIconHeader } from "@/src/components/navigation/fixed-back-icon-header";
@@ -75,68 +77,76 @@ export default async function LibraryDetailPage({ params, searchParams }: Librar
   const hasNext = page < totalPages;
 
   return (
-    <main className="min-h-screen bg-zinc-50 px-6 pb-10 pt-20">
+    <Page style={{ paddingTop: 80, paddingBottom: 40 }}>
       <FixedBackIconHeader href="/library" ariaLabel="서재로 돌아가기" />
-      <div className="mx-auto w-full max-w-4xl space-y-6">
-        <section className="rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">
-          <h1 className="text-2xl font-semibold">{book.title}</h1>
-          <p className="mt-1 text-sm text-zinc-700">
+      <Container>
+        <Stack gap={24}>
+          <Surface>
+            <Heading level={1}>{book.title}</Heading>
+            <Text size="sm" tone="secondary" style={{ marginTop: 6 }}>
             {book.authors.length > 0 ? book.authors.join(", ") : "저자 정보 없음"}
-          </p>
-          <div className="mt-3 flex flex-wrap items-end gap-3 text-xs">
-            <BookStatusSelect bookId={book.id} initialStatus={book.status} />
-            {book.isbn ? <Badge variant="secondary">ISBN {book.isbn}</Badge> : null}
-          </div>
-        </section>
+            </Text>
+            <Inline gap={12} align="flex-end" wrap style={{ marginTop: 12 }}>
+              <BookStatusSelect bookId={book.id} initialStatus={book.status} />
+              {book.isbn ? <Badge variant="secondary">ISBN {book.isbn}</Badge> : null}
+            </Inline>
+          </Surface>
 
-        <NoteForm bookId={book.id} />
+          <NoteForm bookId={book.id} />
 
-        <section className="space-y-3">
-          <h2 className="text-lg font-semibold">노트</h2>
-          {notes.length === 0 ? (
-            <div className="rounded-lg border border-zinc-200 bg-white p-6 text-sm text-zinc-600 shadow-sm">
-              아직 작성된 노트가 없습니다.
-            </div>
-          ) : (
-            notes.map((note) => (
-              <Card key={note.id}>
-                <CardContent className="p-4">
-                  <p className="whitespace-pre-wrap text-sm text-zinc-800">{note.content}</p>
-                  <p className="mt-2 text-xs text-zinc-500">{note.createdAt.toLocaleString()}</p>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </section>
-
-        <footer className="flex items-center justify-between rounded-lg border border-zinc-200 bg-white p-4 text-sm shadow-sm">
-          <span>
-            {page} / {totalPages} 페이지
-          </span>
-          <div className="flex gap-2">
-            {hasPrev ? (
-              <Link
-                href={`/library/${book.id}?page=${page - 1}`}
-                className="rounded-md border border-zinc-300 px-3 py-1.5"
-              >
-                이전
-              </Link>
+          <Stack gap={12}>
+            <Heading level={2}>노트</Heading>
+            {notes.length === 0 ? (
+              <Surface style={{ padding: 24 }}>
+                <Text size="sm" tone="secondary">아직 작성된 노트가 없습니다.</Text>
+              </Surface>
             ) : (
-              <span className="rounded-md border border-zinc-200 px-3 py-1.5 text-zinc-400">이전</span>
+              notes.map((note) => (
+                <Card key={note.id}>
+                  <CardContent style={{ padding: 16 }}>
+                    <Text size="sm" style={{ whiteSpace: "pre-wrap" }}>{note.content}</Text>
+                    <Text size="xs" tone="muted" style={{ marginTop: 8 }}>
+                      {note.createdAt.toLocaleString()}
+                    </Text>
+                  </CardContent>
+                </Card>
+              ))
             )}
-            {hasNext ? (
-              <Link
-                href={`/library/${book.id}?page=${page + 1}`}
-                className="rounded-md border border-zinc-300 px-3 py-1.5"
-              >
-                다음
-              </Link>
-            ) : (
-              <span className="rounded-md border border-zinc-200 px-3 py-1.5 text-zinc-400">다음</span>
-            )}
-          </div>
-        </footer>
-      </div>
-    </main>
+          </Stack>
+
+          <Surface as="footer" style={{ padding: 16 }}>
+            <Inline justify="space-between">
+              <Text as="span" size="sm">
+                {page} / {totalPages} 페이지
+              </Text>
+              <Inline gap={8}>
+                {hasPrev ? (
+                  <ButtonLink href={`/library/${book.id}?page=${page - 1}`} variant="outline" size="sm">
+                    이전
+                  </ButtonLink>
+                ) : (
+                  <span style={disabledNavStyle}>이전</span>
+                )}
+                {hasNext ? (
+                  <ButtonLink href={`/library/${book.id}?page=${page + 1}`} variant="outline" size="sm">
+                    다음
+                  </ButtonLink>
+                ) : (
+                  <span style={disabledNavStyle}>다음</span>
+                )}
+              </Inline>
+            </Inline>
+          </Surface>
+        </Stack>
+      </Container>
+    </Page>
   );
 }
+
+const disabledNavStyle = {
+  borderRadius: 8,
+  border: "1px solid #d4d4d8",
+  color: "#6b7280",
+  padding: "6px 12px",
+  fontSize: "0.875rem",
+};

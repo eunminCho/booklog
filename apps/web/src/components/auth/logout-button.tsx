@@ -3,6 +3,10 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { BRIDGE_VERSION, postToNative } from "@booklog/bridge";
+import styled from "@emotion/styled";
+
+import { Button } from "@/components/ui/button";
+import { Stack } from "@/components/ui/layout";
 
 type ApiErrorResponse = {
   error?: {
@@ -41,20 +45,25 @@ export function LogoutButton() {
   }
 
   return (
-    <div className="flex w-full max-w-sm flex-col gap-4">
+    <Stack style={{ width: "100%", maxWidth: 360 }} gap={16}>
       {errorMessage ? (
-        <p role="alert" className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+        <ErrorBox role="alert">
           {errorMessage}
-        </p>
+        </ErrorBox>
       ) : null}
-      <button
-        type="button"
-        onClick={handleLogout}
-        disabled={isSubmitting}
-        className="rounded-md bg-black px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
-      >
+      <Button type="button" onClick={handleLogout} disabled={isSubmitting} fullWidth>
         {isSubmitting ? "처리 중..." : "로그아웃"}
-      </button>
-    </div>
+      </Button>
+    </Stack>
   );
 }
+
+const ErrorBox = styled.p(({ theme }) => ({
+  margin: 0,
+  borderRadius: theme.radius.md,
+  padding: "10px 12px",
+  fontSize: theme.typography.sm,
+  color: theme.colors.feedback.error,
+  backgroundColor: theme.colors.surface.subtle,
+  border: `1px solid ${theme.colors.border.subtle}`,
+}));

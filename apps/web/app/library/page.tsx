@@ -3,7 +3,10 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { Badge } from "@/components/ui/badge";
+import { ButtonLink } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Container, Inline, Page, Stack, Surface } from "@/components/ui/layout";
+import { Heading, Text } from "@/components/ui/text";
 import { LibraryHeaderActions } from "@/src/components/library/library-header-actions";
 import { MobileLibrarySearchFab } from "@/src/components/library/mobile-library-search-fab";
 import { LibraryTabs } from "@/src/components/library/library-tabs";
@@ -84,77 +87,87 @@ export default async function LibraryPage({ searchParams }: LibraryPageProps) {
   const hasNext = page < totalPages;
 
   return (
-    <main className="min-h-screen bg-zinc-50 px-6 py-10">
-      <div className="mx-auto w-full max-w-4xl space-y-6">
-        <header className="rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">
-          <h1 className="text-2xl font-semibold">내 서재</h1>
-          <p className="mt-1 text-sm text-zinc-700">로그인된 계정: {user.email}</p>
-          <div className="mt-4">
-            <LibraryTabs currentTab={tab} />
-          </div>
-          <LibraryHeaderActions />
-        </header>
-
-        <section className="space-y-3">
-          {books.length === 0 ? (
-            <div className="rounded-lg border border-zinc-200 bg-white p-8 text-center text-sm text-zinc-600 shadow-sm">
-              조건에 맞는 책이 없습니다.
+    <Page>
+      <Container>
+        <Stack gap={24}>
+          <Surface as="header">
+            <Heading level={1}>내 서재</Heading>
+            <Text size="sm" tone="secondary" style={{ marginTop: 6 }}>
+              로그인된 계정: {user.email}
+            </Text>
+            <div style={{ marginTop: 16 }}>
+              <LibraryTabs currentTab={tab} />
             </div>
-          ) : (
-            books.map((book) => (
-              <Link
-                key={book.id}
-                href={`/library/${book.id}`}
-                className="block"
-              >
-                <Card className="transition hover:border-zinc-300">
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <p className="text-lg font-semibold">{book.title}</p>
-                        <p className="mt-1 text-sm text-zinc-600">
-                          {book.authors.length > 0 ? book.authors.join(", ") : "저자 정보 없음"}
-                        </p>
-                        <p className="mt-2 text-xs text-zinc-500">노트 {book._count.notes}개</p>
-                      </div>
-                      <Badge variant="secondary">{book.status}</Badge>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))
-          )}
-        </section>
+            <LibraryHeaderActions />
+          </Surface>
 
-        <footer className="flex items-center justify-between rounded-lg border border-zinc-200 bg-white p-4 text-sm shadow-sm">
-          <span>
-            {page} / {totalPages} 페이지
-          </span>
-          <div className="flex gap-2">
-            {hasPrev ? (
-              <Link
-                href={`/library?tab=${tab}&page=${page - 1}`}
-                className="rounded-md border border-zinc-300 px-3 py-1.5"
-              >
-                이전
-              </Link>
+          <Stack gap={12}>
+            {books.length === 0 ? (
+              <Surface style={{ textAlign: "center", padding: 32 }}>
+                <Text size="sm" tone="secondary">조건에 맞는 책이 없습니다.</Text>
+              </Surface>
             ) : (
-              <span className="rounded-md border border-zinc-200 px-3 py-1.5 text-zinc-400">이전</span>
+              books.map((book) => (
+                <Link
+                  key={book.id}
+                  href={`/library/${book.id}`}
+                  style={{ display: "block" }}
+                >
+                  <Card>
+                    <CardContent style={{ padding: 16 }}>
+                      <Inline gap={16} align="flex-start" justify="space-between">
+                        <div>
+                          <Text as="p" size="lg" weight={700}>{book.title}</Text>
+                          <Text as="p" size="sm" tone="secondary" style={{ marginTop: 6 }}>
+                            {book.authors.length > 0 ? book.authors.join(", ") : "저자 정보 없음"}
+                          </Text>
+                          <Text as="p" size="xs" tone="muted" style={{ marginTop: 8 }}>
+                            노트 {book._count.notes}개
+                          </Text>
+                        </div>
+                        <Badge variant="secondary">{book.status}</Badge>
+                      </Inline>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))
             )}
-            {hasNext ? (
-              <Link
-                href={`/library?tab=${tab}&page=${page + 1}`}
-                className="rounded-md border border-zinc-300 px-3 py-1.5"
-              >
-                다음
-              </Link>
-            ) : (
-              <span className="rounded-md border border-zinc-200 px-3 py-1.5 text-zinc-400">다음</span>
-            )}
-          </div>
-        </footer>
-      </div>
+          </Stack>
+
+          <Surface as="footer" style={{ padding: 16 }}>
+            <Inline justify="space-between">
+              <Text as="span" size="sm">
+                {page} / {totalPages} 페이지
+              </Text>
+              <Inline gap={8}>
+                {hasPrev ? (
+                  <ButtonLink href={`/library?tab=${tab}&page=${page - 1}`} variant="outline" size="sm">
+                    이전
+                  </ButtonLink>
+                ) : (
+                  <span style={disabledNavStyle}>이전</span>
+                )}
+                {hasNext ? (
+                  <ButtonLink href={`/library?tab=${tab}&page=${page + 1}`} variant="outline" size="sm">
+                    다음
+                  </ButtonLink>
+                ) : (
+                  <span style={disabledNavStyle}>다음</span>
+                )}
+              </Inline>
+            </Inline>
+          </Surface>
+        </Stack>
+      </Container>
       <MobileLibrarySearchFab />
-    </main>
+    </Page>
   );
 }
+
+const disabledNavStyle = {
+  borderRadius: 8,
+  border: "1px solid #d4d4d8",
+  color: "#6b7280",
+  padding: "6px 12px",
+  fontSize: "0.875rem",
+};

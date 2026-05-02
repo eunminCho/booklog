@@ -1,7 +1,10 @@
 "use client";
 
+import styled from "@emotion/styled";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+
+import { Stack } from "@/components/ui/layout";
 
 const statusOptions = [
   { value: "READING", label: "읽는 중" },
@@ -58,11 +61,9 @@ export function BookStatusSelect({ bookId, initialStatus }: BookStatusSelectProp
   }
 
   return (
-    <div className="space-y-2">
-      <label htmlFor={`book-status-${bookId}`} className="text-xs font-medium text-zinc-600 mr-1">
-        상태
-      </label>
-      <select
+    <Stack gap={8}>
+      <FieldLabel htmlFor={`book-status-${bookId}`}>상태</FieldLabel>
+      <SelectField
         id={`book-status-${bookId}`}
         value={status}
         disabled={isSubmitting}
@@ -70,7 +71,6 @@ export function BookStatusSelect({ bookId, initialStatus }: BookStatusSelectProp
           const nextStatus = event.target.value as BookStatusValue;
           void handleStatusChange(nextStatus);
         }}
-        className="rounded-md border border-zinc-300 bg-white px-2 py-1 text-xs outline-none ring-blue-300 focus:ring-2 disabled:opacity-60"
         aria-label="서재 상태 변경"
       >
         {statusOptions.map((option) => (
@@ -78,12 +78,45 @@ export function BookStatusSelect({ bookId, initialStatus }: BookStatusSelectProp
             {option.label}
           </option>
         ))}
-      </select>
+      </SelectField>
       {errorMessage ? (
-        <p role="alert" className="rounded-md bg-red-50 px-2 py-1 text-xs text-red-700">
+        <ErrorBox role="alert">
           {errorMessage}
-        </p>
+        </ErrorBox>
       ) : null}
-    </div>
+    </Stack>
   );
 }
+
+const SelectField = styled.select(({ theme }) => ({
+  borderRadius: theme.radius.md,
+  border: `1px solid ${theme.colors.border.subtle}`,
+  backgroundColor: theme.colors.surface.default,
+  color: theme.colors.text.primary,
+  padding: "6px 10px",
+  fontSize: theme.typography.xs,
+  outline: "none",
+  "&:focus-visible": {
+    borderColor: theme.colors.border.default,
+    boxShadow: `0 0 0 2px ${theme.colors.surface.subtle}`,
+  },
+  "&:disabled": {
+    opacity: 0.6,
+  },
+}));
+
+const FieldLabel = styled.label(({ theme }) => ({
+  fontSize: theme.typography.xs,
+  fontWeight: 600,
+  color: theme.colors.text.secondary,
+}));
+
+const ErrorBox = styled.p(({ theme }) => ({
+  margin: 0,
+  borderRadius: theme.radius.md,
+  padding: "8px 10px",
+  fontSize: theme.typography.xs,
+  color: theme.colors.feedback.error,
+  backgroundColor: theme.colors.surface.subtle,
+  border: `1px solid ${theme.colors.border.subtle}`,
+}));

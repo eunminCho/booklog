@@ -2,8 +2,10 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import styled from "@emotion/styled";
 
 import { Button } from "@/components/ui/button";
+import { Stack, Surface } from "@/components/ui/layout";
 
 type NoteFormProps = {
   bookId: string;
@@ -58,26 +60,60 @@ export function NoteForm({ bookId }: NoteFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm">
-      <label htmlFor="new-note" className="text-sm font-medium">
-        노트 추가
-      </label>
-      <textarea
-        id="new-note"
-        value={content}
-        onChange={(event) => setContent(event.target.value)}
-        rows={5}
-        className="mt-2 w-full rounded-md border border-zinc-300 px-3 py-2 text-base outline-none ring-blue-300 focus:ring-2"
-        placeholder="읽으면서 남길 메모를 입력하세요."
-      />
+    <Surface as="form" onSubmit={handleSubmit}>
+      <Stack gap={8}>
+        <FieldLabel htmlFor="new-note">노트 추가</FieldLabel>
+        <NoteTextArea
+          id="new-note"
+          value={content}
+          onChange={(event) => setContent(event.target.value)}
+          rows={5}
+          placeholder="읽으면서 남길 메모를 입력하세요."
+        />
+      </Stack>
       {errorMessage ? (
-        <p role="alert" className="mt-2 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+        <ErrorBox role="alert" style={{ marginTop: 8 }}>
           {errorMessage}
-        </p>
+        </ErrorBox>
       ) : null}
-      <Button type="submit" disabled={isSubmitting} className="mt-3">
+      <Button type="submit" disabled={isSubmitting} style={{ marginTop: 12 }}>
         {isSubmitting ? "저장 중..." : "노트 저장"}
       </Button>
-    </form>
+    </Surface>
   );
 }
+
+const NoteTextArea = styled.textarea(({ theme }) => ({
+  width: "100%",
+  borderRadius: theme.radius.md,
+  border: `1px solid ${theme.colors.border.subtle}`,
+  backgroundColor: theme.colors.surface.default,
+  color: theme.colors.text.primary,
+  padding: "10px 12px",
+  fontSize: theme.typography.body,
+  outline: "none",
+  resize: "vertical",
+  "&:focus-visible": {
+    borderColor: theme.colors.border.default,
+    boxShadow: `0 0 0 2px ${theme.colors.surface.subtle}`,
+  },
+  "&::placeholder": {
+    color: theme.colors.text.muted,
+  },
+}));
+
+const ErrorBox = styled.p(({ theme }) => ({
+  margin: 0,
+  borderRadius: theme.radius.md,
+  padding: "8px 10px",
+  fontSize: theme.typography.sm,
+  color: theme.colors.feedback.error,
+  backgroundColor: theme.colors.surface.subtle,
+  border: `1px solid ${theme.colors.border.subtle}`,
+}));
+
+const FieldLabel = styled.label(({ theme }) => ({
+  fontSize: theme.typography.sm,
+  fontWeight: 600,
+  color: theme.colors.text.primary,
+}));

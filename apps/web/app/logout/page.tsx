@@ -1,13 +1,17 @@
 import { LogoutButton } from "@/src/components/auth/logout-button";
+import { Container, Page, Stack } from "@/components/ui/layout";
+import { Heading, Text } from "@/components/ui/text";
 
 export default function LogoutPage() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-zinc-50 px-6 py-12">
-      <div className="w-full max-w-sm space-y-4">
-        <h1 className="text-2xl font-semibold">로그아웃</h1>
-        <p className="text-sm text-zinc-600">현재 세션을 종료합니다.</p>
-      </div>
+    <Page style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}>
+      <Container style={{ maxWidth: 360 }}>
+        <Stack gap={8}>
+          <Heading level={1}>로그아웃</Heading>
+          <Text size="sm" tone="secondary">현재 세션을 종료합니다.</Text>
+        </Stack>
+      </Container>
       <LogoutButton />
-    </main>
+    </Page>
   );
 }

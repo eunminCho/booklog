@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Text } from "@/components/ui/text";
 import { ExternalApiError, type ExternalApiState } from "@/src/components/errors/ExternalApiError";
 import { AddToLibraryButton } from "@/src/components/library/add-to-library-button";
 
@@ -87,11 +88,13 @@ export function AddByIsbnClient({ isbn }: AddByIsbnClientProps) {
     return (
       <Card>
         <CardHeader>
-          <Badge variant="secondary" className="w-fit">
+          <Badge variant="secondary" style={{ width: "fit-content" }}>
             ISBN {isbn}
           </Badge>
-          <CardTitle className="mt-1">{book.title}</CardTitle>
-          <p className="text-sm text-zinc-700">{book.authors.length > 0 ? book.authors.join(", ") : "저자 정보 없음"}</p>
+          <CardTitle style={{ marginTop: 6 }}>{book.title}</CardTitle>
+          <Text size="sm" tone="secondary">
+            {book.authors.length > 0 ? book.authors.join(", ") : "저자 정보 없음"}
+          </Text>
         </CardHeader>
         <CardContent>
           <AddToLibraryButton book={book} />

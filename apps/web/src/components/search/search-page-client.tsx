@@ -1,15 +1,17 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BRIDGE_VERSION, postToNative } from "@booklog/bridge";
+import styled from "@emotion/styled";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonLink } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Container, Inline, Stack, Surface } from "@/components/ui/layout";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Heading, Text } from "@/components/ui/text";
 import { ExternalApiError, type ExternalApiState } from "@/src/components/errors/ExternalApiError";
 import { AddToLibraryButton } from "@/src/components/library/add-to-library-button";
 
@@ -204,108 +206,135 @@ export function SearchPageClient({ initialQuery, initialMock }: SearchPageClient
   }, []);
 
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-6">
-      <section className="rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">
-        <h1 className="text-2xl font-semibold">책 검색</h1>
-        <p className="mt-1 text-sm text-zinc-700">Google Books로 책을 검색하고 내 서재에 추가하세요.</p>
-        <form onSubmit={handleSubmit} className="mt-4 flex gap-2">
-          <Input
-            type="search"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="책 제목, 저자, ISBN"
-            className="w-full text-base"
+    <Container>
+      <Stack gap={24}>
+        <Surface>
+          <Heading level={1}>책 검색</Heading>
+          <Text size="sm" tone="secondary" style={{ marginTop: 6 }}>
+            Google Books로 책을 검색하고 내 서재에 추가하세요.
+          </Text>
+          <SearchForm onSubmit={handleSubmit}>
+            <Input
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="책 제목, 저자, ISBN"
+              style={{ width: "100%", fontSize: "1rem" }}
+            />
+            <Button type="submit">검색</Button>
+          </SearchForm>
+        </Surface>
+
+        {state && state !== "loading" ? (
+          <ExternalApiError
+            state={state}
+            retryAfterSec={retryAfterSec}
+            onRetry={() => {
+              void runSearch(query);
+            }}
           />
-          <Button type="submit">
-            검색
-          </Button>
-        </form>
-      </section>
+        ) : null}
 
-      {state && state !== "loading" ? (
-        <ExternalApiError
-          state={state}
-          retryAfterSec={retryAfterSec}
-          onRetry={() => {
-            void runSearch(query);
-          }}
-        />
-      ) : null}
+        {state === "loading" ? (
+          <Card>
+            <CardHeader>
+              <CardTitle style={{ fontSize: "1.125rem" }}>검색 결과 준비 중</CardTitle>
+              <CardDescription>외부 API 응답을 기다리고 있습니다.</CardDescription>
+            </CardHeader>
+            <CardContent style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <Skeleton style={{ height: 16, width: "50%" }} />
+              <Skeleton style={{ height: 16, width: "66%" }} />
+              <Skeleton style={{ height: 36, width: 112 }} />
+            </CardContent>
+          </Card>
+        ) : null}
 
-      {state === "loading" ? (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">검색 결과 준비 중</CardTitle>
-            <CardDescription>외부 API 응답을 기다리고 있습니다.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Skeleton className="h-4 w-1/2" />
-            <Skeleton className="h-4 w-2/3" />
-            <Skeleton className="h-9 w-28" />
-          </CardContent>
-        </Card>
-      ) : null}
-
-      {!state && books.length > 0 ? (
-        <section className="grid gap-3">
-          {books.map((book) => (
-            <Card
-              key={`${book.isbn ?? "no-isbn"}-${book.title}`}
-              className="p-4"
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <h2 className="text-lg font-semibold">{book.title}</h2>
-                  <p className="mt-1 text-sm text-zinc-600">
-                    {book.authors.length > 0 ? book.authors.join(", ") : "저자 정보 없음"}
-                  </p>
-                  {book.isbn ? (
-                    <div className="mt-1">
-                      <Badge variant="secondary">ISBN {book.isbn}</Badge>
+        {!state && books.length > 0 ? (
+          <Stack gap={12}>
+            {books.map((book) => (
+              <Card key={`${book.isbn ?? "no-isbn"}-${book.title}`}>
+                <CardContent style={{ padding: 16 }}>
+                  <Inline align="flex-start" justify="space-between" gap={16}>
+                    <div>
+                      <Text as="p" size="lg" weight={700}>{book.title}</Text>
+                      <Text as="p" size="sm" tone="secondary" style={{ marginTop: 6 }}>
+                        {book.authors.length > 0 ? book.authors.join(", ") : "저자 정보 없음"}
+                      </Text>
+                      {book.isbn ? (
+                        <div style={{ marginTop: 6 }}>
+                          <Badge variant="secondary">ISBN {book.isbn}</Badge>
+                        </div>
+                      ) : null}
                     </div>
-                  ) : null}
-                </div>
-                {addedBookMap[getBookKey(book)] !== undefined ? (
-                  <Button asChild variant="outline">
-                    <Link href={addedBookMap[getBookKey(book)] ? `/library/${addedBookMap[getBookKey(book)]}` : "/library"}>
-                      서재로 이동
-                    </Link>
-                  </Button>
-                ) : (
-                  <AddToLibraryButton
-                    book={book}
-                    redirectOnSuccess={false}
-                    onSuccess={(bookId) => {
-                      markAsAdded(book, bookId);
-                      showAddedToast();
-                    }}
-                    onAlreadyInLibrary={(bookId) => {
-                      markAsAdded(book, bookId);
-                    }}
-                  />
-                )}
-              </div>
-            </Card>
-          ))}
-        </section>
-      ) : null}
+                    {addedBookMap[getBookKey(book)] !== undefined ? (
+                      <ButtonLink
+                        href={addedBookMap[getBookKey(book)] ? `/library/${addedBookMap[getBookKey(book)]}` : "/library"}
+                        variant="outline"
+                      >
+                        서재로 이동
+                      </ButtonLink>
+                    ) : (
+                      <AddToLibraryButton
+                        book={book}
+                        redirectOnSuccess={false}
+                        onSuccess={(bookId) => {
+                          markAsAdded(book, bookId);
+                          showAddedToast();
+                        }}
+                        onAlreadyInLibrary={(bookId) => {
+                          markAsAdded(book, bookId);
+                        }}
+                      />
+                    )}
+                  </Inline>
+                </CardContent>
+              </Card>
+            ))}
+          </Stack>
+        ) : null}
 
-      {!didSearch ? (
-        <p className="text-center text-sm text-zinc-500">검색어를 입력하면 결과가 표시됩니다.</p>
-      ) : null}
-      {toastMessage ? (
-        <div className="pointer-events-none fixed inset-x-0 bottom-6 z-50 flex justify-center px-4">
-          <p
-            role="status"
-            className="rounded-full bg-zinc-900 px-4 py-2 text-sm font-medium text-white shadow-lg dark:bg-zinc-100 dark:text-zinc-900"
-          >
-            {toastMessage}
-          </p>
-        </div>
-      ) : null}
-    </div>
+        {!didSearch ? (
+          <Text as="p" size="sm" tone="muted" style={{ textAlign: "center" }}>
+            검색어를 입력하면 결과가 표시됩니다.
+          </Text>
+        ) : null}
+        {toastMessage ? (
+          <ToastWrap>
+            <ToastText role="status">{toastMessage}</ToastText>
+          </ToastWrap>
+        ) : null}
+      </Stack>
+    </Container>
   );
 }
+
+const ToastWrap = styled.div({
+  pointerEvents: "none",
+  position: "fixed",
+  insetInline: 0,
+  bottom: 24,
+  zIndex: 50,
+  display: "flex",
+  justifyContent: "center",
+  paddingInline: 16,
+});
+
+const ToastText = styled.p(({ theme }) => ({
+  margin: 0,
+  borderRadius: 999,
+  backgroundColor: theme.colors.surface.inverse,
+  color: theme.colors.text.inverse,
+  padding: "8px 16px",
+  fontSize: theme.typography.sm,
+  fontWeight: 600,
+  boxShadow: theme.shadow.lg,
+}));
+
+const SearchForm = styled.form({
+  marginTop: 16,
+  display: "flex",
+  gap: 8,
+});
 
 function getBookKey(book: BookSummary): string {
   return `${book.isbn ?? "no-isbn"}-${book.title}`;
