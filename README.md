@@ -159,8 +159,6 @@ pnpm --filter @booklog/mobile android
 
 ## 트러블슈팅
 
-- 시뮬레이터에서 웹 서버 접근 실패 시  
-  `EXPO_PUBLIC_API_BASE_URL`을 로컬 IP(예: `http://192.168.0.10:3000`)로 설정
 - WebView 쿠키 동기화가 안 될 때  
   세션 쿠키 Domain/HTTPS/Secure 설정 확인
 - iOS에서 폰트 스케일 반영이 느릴 때  
