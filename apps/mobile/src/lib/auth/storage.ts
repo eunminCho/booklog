@@ -1,15 +1,18 @@
-import * as SecureStore from "expo-secure-store";
-
-const SESSION_TOKEN_KEY = "booklog.session.token";
+import {
+  deleteSecureItem,
+  getSecureItem,
+  SECURE_STORE_KEYS,
+  setSecureItem,
+} from "../storage/secureStore";
 
 export async function saveSession(token: string): Promise<void> {
-  await SecureStore.setItemAsync(SESSION_TOKEN_KEY, token);
+  await setSecureItem(SECURE_STORE_KEYS.SESSION_TOKEN, token);
 }
 
 export async function loadSession(): Promise<string | null> {
-  return SecureStore.getItemAsync(SESSION_TOKEN_KEY);
+  return getSecureItem(SECURE_STORE_KEYS.SESSION_TOKEN);
 }
 
 export async function clearSession(): Promise<void> {
-  await SecureStore.deleteItemAsync(SESSION_TOKEN_KEY);
+  await deleteSecureItem(SECURE_STORE_KEYS.SESSION_TOKEN);
 }

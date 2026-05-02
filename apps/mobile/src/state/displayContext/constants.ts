@@ -12,8 +12,5 @@ export type DisplayContextValue = {
   resetToSystem: () => Promise<void>;
 };
 
-export const THEME_KEY = "booklog.display.theme";
-export const FONT_SCALE_OVERRIDE_KEY = "booklog.display.fontScale.override";
-
 export const MIN_FONT_SCALE = 0.85;
 export const MAX_FONT_SCALE = 1.5;

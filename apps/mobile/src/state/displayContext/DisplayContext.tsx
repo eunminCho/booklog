@@ -1,5 +1,4 @@
 import { BRIDGE_VERSION, createConsoleLogger } from "@booklog/bridge";
-import * as SecureStore from "expo-secure-store";
 import {
   AccessibilityInfo,
   AppState,
@@ -11,7 +10,22 @@ import {
 import { createContext, useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 
 import { postToRegisteredWebViews } from "../../lib/bridge/webviewRegistry";
-import { DisplayContextValue, DisplaySource, DisplayTheme, FONT_SCALE_OVERRIDE_KEY, MAX_FONT_SCALE, MIN_FONT_SCALE, ResolvedTheme, THEME_KEY } from "./constants";
+import {
+  deleteMMKVItem,
+  getMMKVNumber,
+  getMMKVString,
+  MMKV_KEYS,
+  setMMKVNumber,
+  setMMKVString,
+} from "../../lib/storage/mmkv";
+import {
+  DisplayContextValue,
+  DisplaySource,
+  DisplayTheme,
+  MAX_FONT_SCALE,
+  MIN_FONT_SCALE,
+  ResolvedTheme,
+} from "./constants";
 
 
 /**
@@ -62,29 +76,21 @@ export function DisplayProvider({ children }: { children: ReactNode }) {
 
   // 2) 저장된 사용자 설정을 복원합니다.
   useEffect(() => {
-    const bootstrap = async (): Promise<void> => {
-      try {
-        const [storedTheme, storedFontScale] = await Promise.all([
-          SecureStore.getItemAsync(THEME_KEY),
-          SecureStore.getItemAsync(FONT_SCALE_OVERRIDE_KEY),
-        ]);
+    try {
+      const storedTheme = getMMKVString(MMKV_KEYS.DISPLAY_THEME);
+      const storedFontScale = getMMKVNumber(MMKV_KEYS.DISPLAY_FONT_SCALE_OVERRIDE);
+      const normalizedStoredTheme = storedTheme ?? null;
 
-        if (isDisplayTheme(storedTheme)) {
-          setThemeState(storedTheme);
-        }
-
-        if (storedFontScale) {
-          const parsed = Number(storedFontScale);
-          if (Number.isFinite(parsed)) {
-            setFontScaleOverrideState(clampFontScale(parsed));
-          }
-        }
-      } catch (error) {
-        logger.warn("failed to restore display preferences", error);
+      if (isDisplayTheme(normalizedStoredTheme)) {
+        setThemeState(normalizedStoredTheme);
       }
-    };
 
-    void bootstrap();
+      if (typeof storedFontScale === "number" && Number.isFinite(storedFontScale)) {
+        setFontScaleOverrideState(clampFontScale(storedFontScale));
+      }
+    } catch (error) {
+      logger.warn("failed to restore display preferences", error);
+    }
   }, []);
 
   // 3) 시스템 설정 변화를 감지합니다.
@@ -133,22 +139,20 @@ export function DisplayProvider({ children }: { children: ReactNode }) {
   // 5) 사용자 액션 핸들러를 제공합니다.
   const setTheme = useCallback(async (nextTheme: DisplayTheme): Promise<void> => {
     setThemeState(nextTheme);
-    await SecureStore.setItemAsync(THEME_KEY, nextTheme);
+    setMMKVString(MMKV_KEYS.DISPLAY_THEME, nextTheme);
   }, []);
 
   const setFontScaleOverride = useCallback(async (nextFontScale: number): Promise<void> => {
     const clamped = clampFontScale(nextFontScale);
     setFontScaleOverrideState(clamped);
-    await SecureStore.setItemAsync(FONT_SCALE_OVERRIDE_KEY, String(clamped));
+    setMMKVNumber(MMKV_KEYS.DISPLAY_FONT_SCALE_OVERRIDE, clamped);
   }, []);
 
   const resetToSystem = useCallback(async (): Promise<void> => {
     setThemeState("system");
     setFontScaleOverrideState(null);
-    await Promise.all([
-      SecureStore.deleteItemAsync(THEME_KEY),
-      SecureStore.deleteItemAsync(FONT_SCALE_OVERRIDE_KEY),
-    ]);
+    deleteMMKVItem(MMKV_KEYS.DISPLAY_THEME);
+    deleteMMKVItem(MMKV_KEYS.DISPLAY_FONT_SCALE_OVERRIDE);
   }, []);
 
   const value = useMemo<DisplayContextValue>(
