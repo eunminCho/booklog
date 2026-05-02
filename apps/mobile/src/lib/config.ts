@@ -1,5 +1,5 @@
 const WEB_BASE_URL_BY_ENV = {
-  development: "https://booklog-web-fovj.vercel.app",
+  development: "http://localhost:3000",
   production: "https://booklog-web-fovj.vercel.app",
 } as const;
 
