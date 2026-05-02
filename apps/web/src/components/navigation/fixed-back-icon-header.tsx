@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import styled from "@emotion/styled";
+import { Icon } from "@/src/components/Icon/Icon";
 
 type FixedBackIconHeaderProps = {
   href: string;
@@ -13,9 +14,7 @@ export function FixedBackIconHeader({ href, ariaLabel }: FixedBackIconHeaderProp
     <HeaderRoot>
       <HeaderInner>
         <BackLink href={href} aria-label={ariaLabel}>
-          <svg width="24" height="24" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path fillRule="evenodd" clipRule="evenodd" d="M7.85355 2.64645C7.65829 2.45118 7.34171 2.45118 7.14645 2.64645L2.14645 7.64645C1.95118 7.84171 1.95118 8.15829 2.14645 8.35355L7.14645 13.3536C7.34171 13.5488 7.65829 13.5488 7.85355 13.3536C8.04882 13.1583 8.04882 12.8417 7.85355 12.6464L3.70711 8.5H14.5C14.7761 8.5 15 8.27614 15 8C15 7.72386 14.7761 7.5 14.5 7.5H3.70711L7.85355 3.35355C8.04882 3.15829 8.04882 2.84171 7.85355 2.64645Z" fill="currentColor" />
-          </svg>
+          <Icon name="arrowLeft" size={24} />
         </BackLink>
       </HeaderInner>
     </HeaderRoot>

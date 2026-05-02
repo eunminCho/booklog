@@ -1,0 +1,35 @@
+{
+  "name": "@booklog/icons",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./mobile": {
+      "types": "./dist/mobile.d.ts",
+      "default": "./dist/mobile.js"
+    },
+    "./web": {
+      "types": "./dist/web.d.ts",
+      "default": "./dist/web.js"
+    }
+  },
+  "files": [
+    "dist",
+    "assets"
+  ],
+  "scripts": {
+    "build": "tsc --build",
+    "lint": "eslint --config ../../eslint.config.mjs .",
+    "typecheck": "tsc --build --pretty false",
+    "test": "node -e \"console.log('No tests in packages/icons yet')\""
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

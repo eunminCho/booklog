@@ -27,6 +27,25 @@ const nextConfig: NextConfig = {
   compiler: {
     emotion: true,
   },
+  turbopack: {
+    rules: {
+      "*.svg": {
+        loaders: [
+          {
+            loader: "@svgr/webpack",
+            options: {
+              dimensions: false,
+              expandProps: "end",
+              replaceAttrValues: {
+                "#0E1011": "currentColor",
+              },
+            },
+          },
+        ],
+        as: "*.js",
+      },
+    },
+  },
 };
 
 export default nextConfig;
