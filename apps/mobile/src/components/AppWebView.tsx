@@ -21,7 +21,7 @@ import {
 import { Linking, Platform, StyleSheet, View } from "react-native";
 import { WebView } from "react-native-webview";
 
-import { getApiBaseUrl } from "../lib/config";
+import { buildWebUrl, getWebOrigin } from "../lib/config";
 import { registerWebViewRef } from "../lib/bridge/webviewRegistry";
 import { useAuth } from "../hooks/useAuth";
 import { useDisplay } from "../hooks/useDisplay";
@@ -80,7 +80,7 @@ export const AppWebView = forwardRef<AppWebViewHandle, AppWebViewProps>(function
   const webViewRef = useRef<WebView | null>(null);
   const hideOverlayTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const didNotifyInitialLoadRef = useRef(false);
-  const apiBaseUrl = getApiBaseUrl();
+  const webOrigin = useMemo(() => getWebOrigin(), []);
   const [showLoadingOverlay, setShowLoadingOverlay] = useState(true);
   const [loadProgress, setLoadProgress] = useState(0);
   const [showRouteLoadingBar, setShowRouteLoadingBar] = useState(false);
@@ -184,9 +184,32 @@ export const AppWebView = forwardRef<AppWebViewHandle, AppWebViewProps>(function
     [],
   );
 
-  const originWhitelist = useMemo(
-    () => [apiBaseUrl, "http://*", "https://*"],
-    [apiBaseUrl],
+  const originWhitelist = useMemo(() => [webOrigin], [webOrigin]);
+
+  const shouldStartLoadWithRequest = useCallback(
+    (request: { url: string }): boolean => {
+      if (request.url === "about:blank") {
+        return true;
+      }
+
+      let requestUrl: URL;
+      try {
+        requestUrl = new URL(request.url);
+      } catch {
+        return false;
+      }
+
+      if (requestUrl.origin === webOrigin) {
+        return true;
+      }
+
+      if (requestUrl.protocol === "http:" || requestUrl.protocol === "https:") {
+        void Linking.openURL(request.url);
+      }
+
+      return false;
+    },
+    [webOrigin],
   );
 
   const clearHideOverlayTimeout = useCallback(() => {
@@ -220,8 +243,9 @@ export const AppWebView = forwardRef<AppWebViewHandle, AppWebViewProps>(function
     <View style={styles.container}>
       <WebView
         ref={webViewRef}
-        source={{ uri: `${apiBaseUrl}${path}` }}
+        source={{ uri: buildWebUrl(path) }}
         originWhitelist={originWhitelist}
+        onShouldStartLoadWithRequest={shouldStartLoadWithRequest}
         sharedCookiesEnabled
         thirdPartyCookiesEnabled
         scalesPageToFit={false}

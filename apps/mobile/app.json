@@ -33,9 +33,6 @@
           "image": "./assets/icon.png"
         }
       ]
-    ],
-    "extra": {
-      "apiBaseUrl": "https://booklog-web-fovj.vercel.app"
-    }
+    ]
   }
 }

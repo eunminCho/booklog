@@ -1,4 +1,4 @@
-import { getApiBaseUrl } from "../config";
+import { buildWebUrl } from "../config";
 
 const SESSION_COOKIE_NAME = "bl_session";
 
@@ -65,13 +65,13 @@ async function requestAuth(
 ): Promise<AuthResult> {
   let response: Response;
   try {
-    response = await fetch(`${getApiBaseUrl()}${endpoint}`, {
+    response = await fetch(buildWebUrl(endpoint), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
       body: JSON.stringify({ email, password }),
     });
-  } catch (error) {
+  } catch {
     throw new AuthApiError("네트워크 오류가 발생했습니다. 다시 시도해 주세요.", {
       code: "NETWORK_ERROR",
     });
@@ -118,7 +118,7 @@ export async function signUp(email: string, password: string): Promise<AuthResul
 export async function logout(): Promise<void> {
   let response: Response;
   try {
-    response = await fetch(`${getApiBaseUrl()}/api/auth/logout`, {
+    response = await fetch(buildWebUrl("/api/auth/logout"), {
       method: "POST",
       credentials: "include",
     });
