@@ -1,5 +1,35 @@
 # Architecture
 
+## 0) 모노레포 의존성 그래프
+
+```mermaid
+flowchart TD
+  subgraph Apps
+    WEB["apps/web (@booklog/web)"]
+    MOBILE["apps/mobile (@booklog/mobile)"]
+  end
+
+  subgraph SharedPackages
+    BRIDGE["packages/bridge (@booklog/bridge)"]
+    TOKENS["packages/design-tokens (@booklog/design-tokens)"]
+    ICONS["packages/icons (@booklog/icons)"]
+  end
+
+  subgraph Infra
+    DB[("Neon Postgres")]
+    GBOOKS["Google Books API"]
+  end
+
+  WEB --> BRIDGE
+  WEB --> TOKENS
+  WEB --> ICONS
+  MOBILE --> BRIDGE
+  MOBILE --> TOKENS
+  MOBILE --> ICONS
+  WEB --> DB
+  WEB --> GBOOKS
+```
+
 ## 1) 로그인/세션 재진입 플로우
 
 ```mermaid
