@@ -1,4 +1,5 @@
 import { Button, Pressable, StyleSheet, Text, View } from "react-native";
+import { getColorTokens } from "@booklog/design-tokens";
 
 import { useAuth } from "../../hooks/useAuth";
 import { useDisplay } from "../../hooks/useDisplay";
@@ -14,26 +15,7 @@ export function SettingsScreen() {
   const { signOut, isSubmitting } = useAuth();
   const { theme, resolvedTheme, fontScale, source, setTheme, setFontScaleOverride, resetToSystem } =
     useDisplay();
-  const isDark = resolvedTheme === "dark";
-  const colors = isDark
-    ? {
-        background: "#030712",
-        text: "#f9fafb",
-        subText: "#d1d5db",
-        selectedRow: "#111827",
-        border: "#6b7280",
-        accent: "#e5e7eb",
-        badgeBg: "#1f2937",
-      }
-    : {
-        background: "#ffffff",
-        text: "#111827",
-        subText: "#374151",
-        selectedRow: "#f3f4f6",
-        border: "#6b7280",
-        accent: "#111827",
-        badgeBg: "#e5e7eb",
-      };
+  const colors = getColorTokens(resolvedTheme);
 
   const MIN_FONT_SCALE = 0.85;
   const MAX_FONT_SCALE = 1.5;
@@ -50,17 +32,17 @@ export function SettingsScreen() {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Text style={[styles.title, { color: colors.text }]}>표시 설정</Text>
+    <View style={[styles.container, { backgroundColor: colors.surface.canvas }]}>
+      <Text style={[styles.title, { color: colors.text.primary }]}>표시 설정</Text>
 
       <View style={styles.section}>
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>테마</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>테마</Text>
         {THEME_OPTIONS.map((option) => {
           const selected = option.value === theme;
           return (
             <Pressable
               key={option.value}
-              style={[styles.radioRow, selected && { backgroundColor: colors.selectedRow }]}
+              style={[styles.radioRow, selected && { backgroundColor: colors.surface.selected }]}
               onPress={() => {
                 void setTheme(option.value);
               }}
@@ -68,13 +50,13 @@ export function SettingsScreen() {
               <View
                 style={[
                   styles.radioOuter,
-                  { borderColor: colors.border },
-                  selected && { borderColor: colors.accent },
+                  { borderColor: colors.border.default },
+                  selected && { borderColor: colors.brand.primary },
                 ]}
               >
-                {selected ? <View style={[styles.radioInner, { backgroundColor: colors.accent }]} /> : null}
+                {selected ? <View style={[styles.radioInner, { backgroundColor: colors.brand.primary }]} /> : null}
               </View>
-              <Text style={[styles.radioLabel, { color: colors.text }]}>{option.label}</Text>
+              <Text style={[styles.radioLabel, { color: colors.text.primary }]}>{option.label}</Text>
             </Pressable>
           );
         })}
@@ -82,13 +64,13 @@ export function SettingsScreen() {
 
       <View style={styles.section}>
         <View style={styles.fontHeader}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>폰트 스케일</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>폰트 스케일</Text>
           <Text
             style={[
               styles.badge,
               {
-                color: colors.subText,
-                backgroundColor: colors.badgeBg,
+                color: colors.text.secondary,
+                backgroundColor: colors.surface.subtle,
               },
             ]}
           >
@@ -99,25 +81,25 @@ export function SettingsScreen() {
           <Pressable
             style={[
               styles.stepButton,
-              { borderColor: colors.border, backgroundColor: colors.selectedRow },
+              { borderColor: colors.border.default, backgroundColor: colors.surface.selected },
               !canDecrease && styles.stepButtonDisabled,
             ]}
             disabled={!canDecrease}
             onPress={() => stepTo(-1)}
           >
-            <Text style={[styles.stepButtonText, { color: colors.text }]}>-</Text>
+            <Text style={[styles.stepButtonText, { color: colors.text.primary }]}>-</Text>
           </Pressable>
-          <Text style={[styles.scaleLabel, { color: colors.subText }]}>{fontScale.toFixed(2)}x</Text>
+          <Text style={[styles.scaleLabel, { color: colors.text.secondary }]}>{fontScale.toFixed(2)}x</Text>
           <Pressable
             style={[
               styles.stepButton,
-              { borderColor: colors.border, backgroundColor: colors.selectedRow },
+              { borderColor: colors.border.default, backgroundColor: colors.surface.selected },
               !canIncrease && styles.stepButtonDisabled,
             ]}
             disabled={!canIncrease}
             onPress={() => stepTo(1)}
           >
-            <Text style={[styles.stepButtonText, { color: colors.text }]}>+</Text>
+            <Text style={[styles.stepButtonText, { color: colors.text.primary }]}>+</Text>
           </Pressable>
         </View>
       </View>
@@ -162,7 +144,6 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: "#6b7280",
     alignItems: "center",
     justifyContent: "center",
   },

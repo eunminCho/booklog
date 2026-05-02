@@ -1,9 +1,11 @@
 import { CameraView, type BarcodeScanningResult, useCameraPermissions } from "expo-camera";
+import { getColorTokens } from "@booklog/design-tokens";
 import { useNavigation } from "@react-navigation/native";
 import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { useCallback, useRef, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
+import { useDisplay } from "../../hooks/useDisplay";
 import type { MainTabParamList } from "../../navigation/MainTabs";
 
 
@@ -27,6 +29,8 @@ function isValidIsbn13(value: string): boolean {
 
 export function ScanScreen() {
   const navigation = useNavigation<BottomTabNavigationProp<MainTabParamList, "Scan">>();
+  const { resolvedTheme } = useDisplay();
+  const colors = getColorTokens(resolvedTheme);
   const [permission, requestPermission] = useCameraPermissions();
   const [flashEnabled, setFlashEnabled] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -54,47 +58,56 @@ export function ScanScreen() {
 
   if (!permission) {
     return (
-      <View style={styles.centered}>
-        <Text style={styles.subtitle}>카메라 권한 상태를 확인하는 중입니다.</Text>
+      <View style={[styles.centered, { backgroundColor: colors.surface.canvas }]}>
+        <Text style={[styles.subtitle, { color: colors.text.secondary }]}>카메라 권한 상태를 확인하는 중입니다.</Text>
       </View>
     );
   }
 
   if (!permission.granted) {
     return (
-      <View style={styles.centered}>
-        <Text style={styles.title}>카메라 권한이 필요합니다</Text>
-        <Text style={styles.subtitle}>바코드 스캔을 위해 카메라 접근을 허용해 주세요.</Text>
-        <Pressable style={styles.primaryButton} onPress={() => void requestPermission()}>
-          <Text style={styles.primaryButtonText}>권한 요청</Text>
+      <View style={[styles.centered, { backgroundColor: colors.surface.canvas }]}>
+        <Text style={[styles.title, { color: colors.text.primary }]}>카메라 권한이 필요합니다</Text>
+        <Text style={[styles.subtitle, { color: colors.text.secondary }]}>바코드 스캔을 위해 카메라 접근을 허용해 주세요.</Text>
+        <Pressable style={[styles.primaryButton, { backgroundColor: colors.surface.subtle }]} onPress={() => void requestPermission()}>
+          <Text style={[styles.primaryButtonText, { color: colors.text.inverse }]}>권한 요청</Text>
         </Pressable>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.surface.inverse }]}>
       <CameraView
         style={styles.camera}
         onBarcodeScanned={handleBarcodeScanned}
         barcodeScannerSettings={{ barcodeTypes: ["ean13"] }}
         enableTorch={flashEnabled}
       />
-      <View style={styles.overlay}>
-        <Text style={styles.title}>책 바코드를 스캔해 주세요</Text>
-        <Text style={styles.subtitle}>EAN-13(ISBN)만 인식됩니다.</Text>
-        {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
+      <View style={[styles.overlay, { backgroundColor: colors.overlay.scrim }]}>
+        <Text style={[styles.title, { color: colors.text.inverse }]}>책 바코드를 스캔해 주세요</Text>
+        <Text style={[styles.subtitle, { color: colors.text.secondary }]}>EAN-13(ISBN)만 인식됩니다.</Text>
+        {errorMessage ? <Text style={[styles.error, { color: colors.feedback.error }]}>{errorMessage}</Text> : null}
 
         <View style={styles.actions}>
           <Pressable
-            style={[styles.secondaryButton, flashEnabled && styles.secondaryButtonActive]}
+            style={[
+              styles.secondaryButton,
+              { borderColor: colors.border.strong },
+              flashEnabled && {
+                borderColor: colors.feedback.warning,
+                backgroundColor: colors.feedback.warningSubtle,
+              },
+            ]}
             onPress={() => setFlashEnabled((prev) => !prev)}
           >
-            <Text style={styles.secondaryButtonText}>{flashEnabled ? "플래시 끄기" : "플래시 켜기"}</Text>
+            <Text style={[styles.secondaryButtonText, { color: colors.text.inverse }]}>
+              {flashEnabled ? "플래시 끄기" : "플래시 켜기"}
+            </Text>
           </Pressable>
 
             <Pressable
-              style={styles.primaryButton}
+              style={[styles.primaryButton, { backgroundColor: colors.surface.subtle }]}
               onPress={() => {
                 hasCompletedRef.current = true;
                 navigation.navigate("Library", {
@@ -103,7 +116,7 @@ export function ScanScreen() {
                 });
               }}
             >
-              <Text style={styles.primaryButtonText}>수동 입력</Text>
+              <Text style={[styles.primaryButtonText, { color: colors.text.inverse }]}>수동 입력</Text>
             </Pressable>
         </View>
       </View>
@@ -114,7 +127,6 @@ export function ScanScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#000",
   },
   camera: {
     flex: 1,
@@ -128,7 +140,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 28,
-    backgroundColor: "rgba(0, 0, 0, 0.55)",
   },
   centered: {
     flex: 1,
@@ -140,13 +151,9 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: "700",
-    color: "#fff",
   },
-  subtitle: {
-    color: "#e5e7eb",
-  },
+  subtitle: {},
   error: {
-    color: "#fecaca",
     fontSize: 13,
   },
   actions: {
@@ -156,28 +163,20 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     borderRadius: 8,
-    backgroundColor: "#f3f4f6",
     paddingHorizontal: 14,
     paddingVertical: 10,
   },
   primaryButtonText: {
-    color: "#111827",
     fontWeight: "600",
   },
   secondaryButton: {
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#9ca3af",
     backgroundColor: "transparent",
     paddingHorizontal: 14,
     paddingVertical: 10,
   },
-  secondaryButtonActive: {
-    borderColor: "#fde68a",
-    backgroundColor: "rgba(254, 240, 138, 0.25)",
-  },
   secondaryButtonText: {
-    color: "#f9fafb",
     fontWeight: "600",
   },
 });

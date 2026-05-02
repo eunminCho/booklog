@@ -1,10 +1,14 @@
 import { useState } from "react";
+import { getColorTokens } from "@booklog/design-tokens";
 import { Button, StyleSheet, Text, TextInput, View } from "react-native";
 
 import { useAuth } from "../../hooks/useAuth";
+import { useDisplay } from "../../hooks/useDisplay";
 
 export function SignUpScreen() {
   const { signUp, error, clearError, isSubmitting } = useAuth();
+  const { resolvedTheme } = useDisplay();
+  const colors = getColorTokens(resolvedTheme);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -18,8 +22,8 @@ export function SignUpScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>회원가입</Text>
+    <View style={[styles.container, { backgroundColor: colors.surface.canvas }]}>
+      <Text style={[styles.title, { color: colors.text.primary }]}>회원가입</Text>
       <TextInput
         value={email}
         onChangeText={setEmail}
@@ -27,7 +31,15 @@ export function SignUpScreen() {
         autoCapitalize="none"
         keyboardType="email-address"
         autoCorrect={false}
-        style={styles.input}
+        style={[
+          styles.input,
+          {
+            borderColor: colors.border.subtle,
+            backgroundColor: colors.surface.default,
+            color: colors.text.primary,
+          },
+        ]}
+        placeholderTextColor={colors.text.muted}
       />
       <TextInput
         value={password}
@@ -36,9 +48,17 @@ export function SignUpScreen() {
         secureTextEntry
         autoCapitalize="none"
         autoCorrect={false}
-        style={styles.input}
+        style={[
+          styles.input,
+          {
+            borderColor: colors.border.subtle,
+            backgroundColor: colors.surface.default,
+            color: colors.text.primary,
+          },
+        ]}
+        placeholderTextColor={colors.text.muted}
       />
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {error ? <Text style={[styles.error, { color: colors.feedback.error }]}>{error}</Text> : null}
       <Button
         title={isSubmitting ? "가입 중..." : "가입하기"}
         onPress={() => void handleSignUp()}
@@ -62,14 +82,11 @@ const styles = StyleSheet.create({
   input: {
     width: "100%",
     borderWidth: 1,
-    borderColor: "#d4d4d8",
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    backgroundColor: "#fff",
   },
   error: {
     width: "100%",
-    color: "#b91c1c",
   },
 });

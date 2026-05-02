@@ -1,14 +1,18 @@
 import { useState } from "react";
+import { getColorTokens } from "@booklog/design-tokens";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Button, ScrollView, StyleSheet, Text, TextInput } from "react-native";
 
 import type { AuthStackParamList } from "../../navigation/AuthStack";
 import { useAuth } from "../../hooks/useAuth";
+import { useDisplay } from "../../hooks/useDisplay";
 
 export function LoginScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<AuthStackParamList, "Login">>();
   const { signIn, error, clearError, isSubmitting } = useAuth();
+  const { resolvedTheme } = useDisplay();
+  const colors = getColorTokens(resolvedTheme);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -29,9 +33,10 @@ export function LoginScreen() {
         justifyContent: "center",
         padding: 20,
         gap: 12,
+        backgroundColor: colors.surface.canvas,
       }}
     >
-      <Text style={styles.title}>로그인</Text>
+      <Text style={[styles.title, { color: colors.text.primary }]}>로그인</Text>
       <TextInput
         value={email}
         onChangeText={setEmail}
@@ -39,7 +44,15 @@ export function LoginScreen() {
         autoCapitalize="none"
         keyboardType="email-address"
         autoCorrect={false}
-        style={styles.input}
+        style={[
+          styles.input,
+          {
+            borderColor: colors.border.subtle,
+            backgroundColor: colors.surface.default,
+            color: colors.text.primary,
+          },
+        ]}
+        placeholderTextColor={colors.text.muted}
       />
       <TextInput
         value={password}
@@ -48,9 +61,17 @@ export function LoginScreen() {
         secureTextEntry
         autoCapitalize="none"
         autoCorrect={false}
-        style={styles.input}
+        style={[
+          styles.input,
+          {
+            borderColor: colors.border.subtle,
+            backgroundColor: colors.surface.default,
+            color: colors.text.primary,
+          },
+        ]}
+        placeholderTextColor={colors.text.muted}
       />
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {error ? <Text style={[styles.error, { color: colors.feedback.error }]}>{error}</Text> : null}
       <Button title={isSubmitting ? "로그인 중..." : "로그인"} onPress={() => void handleSignIn()} />
       <Button title="회원가입 하러가기" onPress={() => navigation.navigate("SignUp")} />
     </ScrollView>
@@ -65,14 +86,11 @@ const styles = StyleSheet.create({
   input: {
     width: "100%",
     borderWidth: 1,
-    borderColor: "#d4d4d8",
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    backgroundColor: "#fff",
   },
   error: {
     width: "100%",
-    color: "#b91c1c",
   },
 });

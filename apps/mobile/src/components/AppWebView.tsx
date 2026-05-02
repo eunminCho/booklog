@@ -7,6 +7,7 @@ import {
   type NativeToWebMessage,
   type WebToNativeMessage,
 } from "@booklog/bridge";
+import { getColorTokens } from "@booklog/design-tokens";
 import { useNavigation, type NavigationProp, type ParamListBase } from "@react-navigation/native";
 import Constants from "expo-constants";
 import {
@@ -76,6 +77,7 @@ export const AppWebView = forwardRef<AppWebViewHandle, AppWebViewProps>(function
 ) {
   const { session, signOut } = useAuth();
   const { resolvedTheme, fontScale } = useDisplay();
+  const colors = getColorTokens(resolvedTheme);
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const webViewRef = useRef<WebView | null>(null);
   const hideOverlayTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -264,13 +266,26 @@ export const AppWebView = forwardRef<AppWebViewHandle, AppWebViewProps>(function
         }}
       />
       {showRouteLoadingBar && !showLoadingOverlay ? (
-        <View style={styles.routeLoadingTrack}>
-          <View style={styles.routeLoadingFill} />
+        <View style={[styles.routeLoadingTrack, { backgroundColor: colors.progress.track }]}>
+          <View style={[styles.routeLoadingFill, { backgroundColor: colors.progress.fill }]} />
         </View>
       ) : null}
       {showLoadingOverlay ? (
-        <View style={styles.progressTrack} accessible accessibilityLabel="로딩 중" accessibilityLiveRegion="polite">
-          <View style={[styles.progressFill, { width: `${Math.max(5, loadProgress * 100)}%` }]} />
+        <View
+          style={[styles.progressTrack, { backgroundColor: colors.progress.track }]}
+          accessible
+          accessibilityLabel="로딩 중"
+          accessibilityLiveRegion="polite"
+        >
+          <View
+            style={[
+              styles.progressFill,
+              {
+                width: `${Math.max(5, loadProgress * 100)}%`,
+                backgroundColor: colors.progress.fill,
+              },
+            ]}
+          />
         </View>
       ) : null}
     </View>
@@ -287,11 +302,9 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 3,
-    backgroundColor: "rgba(17, 24, 39, 0.12)",
   },
   progressFill: {
     height: "100%",
-    backgroundColor: "#111827",
   },
   routeLoadingTrack: {
     position: "absolute",
@@ -299,11 +312,9 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 3,
-    backgroundColor: "rgba(17, 24, 39, 0.12)",
   },
   routeLoadingFill: {
     height: "100%",
     width: "70%",
-    backgroundColor: "#111827",
   },
 });
