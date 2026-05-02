@@ -1,11 +1,16 @@
 # BookLog Monorepo
 
-BookLog는 웹(`apps/web`)과 모바일(`apps/mobile`)을 함께 개발하는 `pnpm workspaces` 기반 모노레포입니다.
-모바일은 네이티브 탭 UX를 제공하고, 핵심 서재 경험은 WebView + 웹 앱을 `@booklog/bridge`로 동기화합니다.
+- 웹(`apps/web`)과 모바일(`apps/mobile`)을 함께 개발하는 `pnpm workspaces` 기반 모노레포
+- 모바일은 네이티브 탭 UX를 제공
+- 핵심 서재 기능은 WebView + 웹 앱을 `@booklog/bridge`로 동기화
 
-![Demo - Login and Library](./docs/assets/demo-login-library.gif)
-![Demo - Scan and Add](./docs/assets/demo-scan-add.gif)
-![Demo - Theme Sync](./docs/assets/demo-theme-sync.gif)
+
+https://github.com/user-attachments/assets/c4a00292-8687-41cd-8dc0-2ad8efebbbd0
+
+https://github.com/user-attachments/assets/49f68353-fbbf-4cae-976c-1f5c5a7900ab
+
+
+
 
 ## 핵심 기능
 
