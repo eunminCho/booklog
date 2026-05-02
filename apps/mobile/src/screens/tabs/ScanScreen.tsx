@@ -59,7 +59,7 @@ export function ScanScreen() {
   if (!permission) {
     return (
       <View style={[styles.centered, { backgroundColor: colors.surface.canvas }]}>
-        <Text style={[styles.subtitle, { color: colors.text.secondary }]}>카메라 권한 상태를 확인하는 중입니다.</Text>
+        <Text style={[{ color: colors.text.secondary }]}>카메라 권한 상태를 확인하는 중입니다.</Text>
       </View>
     );
   }
@@ -68,7 +68,7 @@ export function ScanScreen() {
     return (
       <View style={[styles.centered, { backgroundColor: colors.surface.canvas }]}>
         <Text style={[styles.title, { color: colors.text.primary }]}>카메라 권한이 필요합니다</Text>
-        <Text style={[styles.subtitle, { color: colors.text.secondary }]}>바코드 스캔을 위해 카메라 접근을 허용해 주세요.</Text>
+        <Text style={[{ color: colors.text.secondary }]}>바코드 스캔을 위해 카메라 접근을 허용해 주세요.</Text>
         <Pressable style={[styles.primaryButton, { backgroundColor: colors.surface.subtle }]} onPress={() => void requestPermission()}>
           <Text style={[styles.primaryButtonText, { color: colors.text.inverse }]}>권한 요청</Text>
         </Pressable>
@@ -86,7 +86,7 @@ export function ScanScreen() {
       />
       <View style={[styles.overlay, { backgroundColor: colors.overlay.scrim }]}>
         <Text style={[styles.title, { color: colors.text.inverse }]}>책 바코드를 스캔해 주세요</Text>
-        <Text style={[styles.subtitle, { color: colors.text.secondary }]}>EAN-13(ISBN)만 인식됩니다.</Text>
+        <Text style={[{ color: colors.text.secondary }]}>EAN-13(ISBN)만 인식됩니다.</Text>
         {errorMessage ? <Text style={[styles.error, { color: colors.feedback.error }]}>{errorMessage}</Text> : null}
 
         <View style={styles.actions}>
@@ -152,7 +152,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "700",
   },
-  subtitle: {},
   error: {
     fontSize: 13,
   },

@@ -1,16 +1,23 @@
 import { useState } from "react";
 import { getColorTokens } from "@booklog/design-tokens";
-import { Button, StyleSheet, Text, TextInput, View } from "react-native";
+import { Button, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 
 import { useAuth } from "../../hooks/useAuth";
 import { useDisplay } from "../../hooks/useDisplay";
+import { Icon } from "../../components/Icon/Icon";
+import { useNavigation } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { AuthStackParamList } from "../../navigation/AuthStack";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export function SignUpScreen() {
+  const navigation = useNavigation<NativeStackNavigationProp<AuthStackParamList, "SignUp">>();
   const { signUp, error, clearError, isSubmitting } = useAuth();
   const { resolvedTheme } = useDisplay();
   const colors = getColorTokens(resolvedTheme);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { top: safeAreaTopInset } = useSafeAreaInsets();
 
   async function handleSignUp(): Promise<void> {
     clearError();
@@ -22,7 +29,13 @@ export function SignUpScreen() {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.surface.canvas }]}>
+    <View style={{ paddingTop: safeAreaTopInset, flex: 1, backgroundColor: colors.surface.canvas  }}>
+      <View style={{paddingHorizontal: 20, paddingVertical: 16}}>
+        <Pressable onPress={() => navigation.goBack()}>
+          <Icon src="arrowLeft" size={24} color={colors.text.primary} />
+        </Pressable>
+      </View>
+      <ScrollView contentContainerStyle={[styles.container]}>
       <Text style={[styles.title, { color: colors.text.primary }]}>회원가입</Text>
       <TextInput
         value={email}
@@ -63,7 +76,9 @@ export function SignUpScreen() {
         title={isSubmitting ? "가입 중..." : "가입하기"}
         onPress={() => void handleSignUp()}
       />
+    </ScrollView>
     </View>
+
   );
 }
 
