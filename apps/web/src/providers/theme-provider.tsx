@@ -1,7 +1,9 @@
 "use client";
 
-import { getColorTokens } from "@booklog/design-tokens";
+import { Global, ThemeProvider as EmotionThemeProvider } from "@emotion/react";
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+
+import { createAppTheme } from "@/src/styles/theme";
 
 type Theme = "light" | "dark" | "system";
 type ResolvedTheme = "light" | "dark";
@@ -16,14 +18,14 @@ type ThemeContextValue = {
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
-function resolveTheme(theme: Theme): ResolvedTheme {
+function resolveTheme(theme: Theme, allowSystemMedia = false): ResolvedTheme {
   if (theme === "dark") {
     return "dark";
   }
   if (theme === "light") {
     return "light";
   }
-  if (typeof window === "undefined") {
+  if (!allowSystemMedia || typeof window === "undefined") {
     return "light";
   }
 
@@ -32,23 +34,10 @@ function resolveTheme(theme: Theme): ResolvedTheme {
 
 function applyDisplayToHtml(theme: Theme, fontScale: number): void {
   const html = document.documentElement;
-  const resolvedTheme = resolveTheme(theme);
-  const colors = getColorTokens(resolvedTheme);
+  const resolvedTheme = resolveTheme(theme, true);
   html.dataset.theme = theme;
-  html.classList.toggle("dark", resolvedTheme === "dark");
+  html.style.colorScheme = resolvedTheme;
   html.style.setProperty("--app-font-scale", String(fontScale));
-  html.style.setProperty("--background", colors.surface.canvas);
-  html.style.setProperty("--foreground", colors.text.primary);
-  html.style.setProperty("--surface-default", colors.surface.default);
-  html.style.setProperty("--surface-subtle", colors.surface.subtle);
-  html.style.setProperty("--surface-selected", colors.surface.selected);
-  html.style.setProperty("--text-secondary", colors.text.secondary);
-  html.style.setProperty("--text-muted", colors.text.muted);
-  html.style.setProperty("--text-inverse", colors.text.inverse);
-  html.style.setProperty("--border-default", colors.border.default);
-  html.style.setProperty("--border-subtle", colors.border.subtle);
-  html.style.setProperty("--border-strong", colors.border.strong);
-  html.style.setProperty("--feedback-error", colors.feedback.error);
 }
 
 export function ThemeProvider({
@@ -62,7 +51,7 @@ export function ThemeProvider({
 }) {
   const [theme, setTheme] = useState<Theme>(initialTheme);
   const [fontScale, setFontScale] = useState<number>(initialFontScale);
-  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(() => resolveTheme(initialTheme));
+  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(() => resolveTheme(initialTheme, false));
   useEffect(() => {
     setTheme(initialTheme);
   }, [initialTheme]);
@@ -76,7 +65,7 @@ export function ThemeProvider({
     }
 
     applyDisplayToHtml(theme, fontScale);
-    setResolvedTheme(resolveTheme(theme));
+    setResolvedTheme(resolveTheme(theme, true));
   }, [fontScale, theme]);
 
   useEffect(() => {
@@ -87,7 +76,7 @@ export function ThemeProvider({
     const media = window.matchMedia("(prefers-color-scheme: dark)");
     const onChange = () => {
       applyDisplayToHtml(theme, fontScale);
-      setResolvedTheme(resolveTheme(theme));
+      setResolvedTheme(resolveTheme(theme, true));
     };
     media.addEventListener("change", onChange);
     return () => media.removeEventListener("change", onChange);
@@ -97,8 +86,42 @@ export function ThemeProvider({
     () => ({ theme, fontScale, resolvedTheme, setTheme, setFontScale }),
     [fontScale, resolvedTheme, theme],
   );
+  const emotionTheme = useMemo(() => createAppTheme(resolvedTheme, fontScale), [fontScale, resolvedTheme]);
 
-  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+  return (
+    <ThemeContext.Provider value={value}>
+      <EmotionThemeProvider theme={emotionTheme}>
+        <Global
+          styles={{
+            "*": { boxSizing: "border-box" },
+            "*::before": { boxSizing: "border-box" },
+            "*::after": { boxSizing: "border-box" },
+            html: {
+              minHeight: "100%",
+              margin: 0,
+              padding: 0,
+              fontSize: "calc(16px * var(--app-font-scale))",
+            },
+            body: {
+              minHeight: "100%",
+              margin: 0,
+              padding: 0,
+              backgroundColor: emotionTheme.colors.surface.canvas,
+              color: emotionTheme.colors.text.primary,
+              fontFamily: "var(--font-geist-sans), Arial, Helvetica, sans-serif",
+              fontSize: "1rem",
+              lineHeight: 1.45,
+            },
+            a: {
+              color: "inherit",
+              textDecoration: "none",
+            },
+          }}
+        />
+        {children}
+      </EmotionThemeProvider>
+    </ThemeContext.Provider>
+  );
 }
 
 export function useThemeState() {

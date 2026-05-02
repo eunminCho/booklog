@@ -24,6 +24,9 @@ function buildAllowedDevOrigins(): string[] {
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: buildAllowedDevOrigins(),
+  compiler: {
+    emotion: true,
+  },
 };
 
 export default nextConfig;

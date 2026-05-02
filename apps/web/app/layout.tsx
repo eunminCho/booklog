@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import type { CSSProperties, ReactNode } from "react";
 import "./globals.css";
 import { AppProviders } from "@/src/providers/app-providers";
+import { EmotionRegistry } from "@/src/providers/emotion-registry";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,13 +28,15 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable}`}
       data-theme="system"
       style={{ "--app-font-scale": 1 } as CSSProperties}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">
-        <AppProviders>{children}</AppProviders>
+      <body>
+        <EmotionRegistry>
+          <AppProviders>{children}</AppProviders>
+        </EmotionRegistry>
       </body>
     </html>
   );
