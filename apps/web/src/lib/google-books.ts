@@ -40,6 +40,7 @@ export class UpstreamError extends GoogleBooksError {
 export class NotFoundError extends GoogleBooksError {}
 
 type GoogleBooksResponse = {
+  totalItems?: number;
   items?: GoogleBooksItem[];
 };
 
@@ -175,10 +176,22 @@ async function fetchGoogleBooks(url: URL): Promise<GoogleBooksResponse> {
   throw new UpstreamError("Google Books retry attempts exhausted", 503);
 }
 
-function buildGoogleBooksUrl(query: string): URL {
+type SearchBooksOptions = {
+  offset?: number;
+  limit?: number;
+};
+
+type SearchBooksResult = {
+  books: BookSummary[];
+  hasMore: boolean;
+  nextOffset: number;
+};
+
+function buildGoogleBooksUrl(query: string, { offset = 0, limit = 10 }: SearchBooksOptions): URL {
   const url = new URL(GOOGLE_BOOKS_BASE_URL);
   url.searchParams.set("q", query);
-  url.searchParams.set("maxResults", "25");
+  url.searchParams.set("startIndex", String(offset));
+  url.searchParams.set("maxResults", String(limit));
 
   const apiKey = process.env.GOOGLE_BOOKS_API_KEY?.trim();
   if (apiKey) {
@@ -188,18 +201,30 @@ function buildGoogleBooksUrl(query: string): URL {
   return url;
 }
 
-export async function searchBooks(q: string): Promise<BookSummary[]> {
+export async function searchBooks(q: string, options: SearchBooksOptions = {}): Promise<SearchBooksResult> {
   const query = q.trim();
   if (!query) {
-    return [];
+    return {
+      books: [],
+      hasMore: false,
+      nextOffset: 0,
+    };
   }
 
-  const data = await fetchGoogleBooks(buildGoogleBooksUrl(query));
+  const offset = options.offset ?? 0;
+  const limit = options.limit ?? 10;
+  const data = await fetchGoogleBooks(buildGoogleBooksUrl(query, { offset, limit }));
   const items = data.items ?? [];
-
-  return items
+  const books = items
     .map(mapItemToSummary)
     .filter((item): item is BookSummary => item !== null);
+  const totalItems = data.totalItems ?? 0;
+
+  return {
+    books,
+    hasMore: offset + items.length < totalItems,
+    nextOffset: offset + items.length,
+  };
 }
 
 export async function getBookByIsbn(isbn: string): Promise<BookSummary | null> {
@@ -208,7 +233,7 @@ export async function getBookByIsbn(isbn: string): Promise<BookSummary | null> {
     return null;
   }
 
-  const data = await fetchGoogleBooks(buildGoogleBooksUrl(`isbn:${normalizedIsbn}`));
+  const data = await fetchGoogleBooks(buildGoogleBooksUrl(`isbn:${normalizedIsbn}`, { limit: 1 }));
   const first = data.items?.[0];
   if (!first) {
     return null;
