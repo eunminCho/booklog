@@ -24,7 +24,11 @@ const TAB_ICON_SRC_BY_ROUTE: Record<keyof MainTabParamList, "book" | "scan" | "s
   Settings: "settings",
 };
 
-export function MainTabs() {
+type MainTabsProps = {
+  onInitialLibraryLoadEnd?: () => void;
+};
+
+export function MainTabs({ onInitialLibraryLoadEnd }: MainTabsProps) {
   return (
     <Tab.Navigator
       initialRouteName="Library"
@@ -38,7 +42,11 @@ export function MainTabs() {
         ),
       })}
     >
-      <Tab.Screen name="Library" options={{ headerShown: false }} component={LibraryScreen} />
+      <Tab.Screen name="Library" options={{ headerShown: false }}>
+        {(props) => (
+          <LibraryScreen {...props} onInitialWebViewLoadEnd={onInitialLibraryLoadEnd} />
+        )}
+      </Tab.Screen>
       <Tab.Screen name="Scan" component={ScanScreen} />
       <Tab.Screen name="Settings" component={SettingsScreen} />
     </Tab.Navigator>

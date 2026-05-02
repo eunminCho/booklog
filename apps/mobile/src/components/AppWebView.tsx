@@ -34,6 +34,7 @@ export type AppWebViewHandle = {
 
 type AppWebViewProps = {
   path: string;
+  onInitialLoadEnd?: () => void;
 };
 
 function toReadyStateMessage(
@@ -70,7 +71,7 @@ function toReadyStateMessage(
 }
 
 export const AppWebView = forwardRef<AppWebViewHandle, AppWebViewProps>(function AppWebView(
-  { path },
+  { path, onInitialLoadEnd },
   ref,
 ) {
   const { session, signOut } = useAuth();
@@ -78,6 +79,7 @@ export const AppWebView = forwardRef<AppWebViewHandle, AppWebViewProps>(function
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const webViewRef = useRef<WebView | null>(null);
   const hideOverlayTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const didNotifyInitialLoadRef = useRef(false);
   const apiBaseUrl = getApiBaseUrl();
   const [showLoadingOverlay, setShowLoadingOverlay] = useState(true);
   const [loadProgress, setLoadProgress] = useState(0);
@@ -204,11 +206,15 @@ export const AppWebView = forwardRef<AppWebViewHandle, AppWebViewProps>(function
   const finishLoading = useCallback(() => {
     clearHideOverlayTimeout();
     setLoadProgress(1);
+    if (!didNotifyInitialLoadRef.current) {
+      didNotifyInitialLoadRef.current = true;
+      onInitialLoadEnd?.();
+    }
     hideOverlayTimeoutRef.current = setTimeout(() => {
       setShowLoadingOverlay(false);
       hideOverlayTimeoutRef.current = null;
     }, 150);
-  }, [clearHideOverlayTimeout]);
+  }, [clearHideOverlayTimeout, onInitialLoadEnd]);
 
   return (
     <View style={styles.container}>

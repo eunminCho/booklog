@@ -3,7 +3,11 @@ import { MainTabs } from "./MainTabs";
 import { useAuth } from "../hooks/useAuth";
 import { ActivityIndicator, View } from "react-native";
 
-export function RootNavigator() {
+type RootNavigatorProps = {
+  onInitialLibraryLoadEnd?: () => void;
+};
+
+export function RootNavigator({ onInitialLibraryLoadEnd }: RootNavigatorProps) {
   const { token, isBootstrapping } = useAuth();
 
   if (isBootstrapping) {
@@ -15,7 +19,7 @@ export function RootNavigator() {
   }
 
   if (token) {
-    return <MainTabs />;
+    return <MainTabs onInitialLibraryLoadEnd={onInitialLibraryLoadEnd} />;
   }
 
   return <AuthStack />;

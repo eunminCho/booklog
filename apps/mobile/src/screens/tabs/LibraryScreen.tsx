@@ -7,7 +7,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppWebView } from "../../components/AppWebView";
 import type { MainTabParamList } from "../../navigation/MainTabs";
 
-export function LibraryScreen() {
+type LibraryScreenProps = {
+  onInitialWebViewLoadEnd?: () => void;
+};
+
+export function LibraryScreen({ onInitialWebViewLoadEnd }: LibraryScreenProps) {
   const route = useRoute<RouteProp<MainTabParamList, "Library">>();
   const { top: safeAreaTopInset } = useSafeAreaInsets();
 
@@ -24,7 +28,11 @@ export function LibraryScreen() {
 
   return (
     <View style={{ paddingTop: safeAreaTopInset, flex: 1 }}>
-      <AppWebView path={webPath} key={route.params?.searchRequestId ?? "library-default"} />
+      <AppWebView
+        path={webPath}
+        key={route.params?.searchRequestId ?? "library-default"}
+        onInitialLoadEnd={onInitialWebViewLoadEnd}
+      />
     </View>
   );
 }

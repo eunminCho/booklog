@@ -4,15 +4,19 @@ import {
   DefaultTheme as NavigationDefaultTheme,
   NavigationContainer,
 } from "@react-navigation/native";
+import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
+import { useCallback, useEffect, useState } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
+import { useAuth } from "./hooks/useAuth";
 import { useDisplay } from "./hooks/useDisplay";
 import { RootNavigator } from "./navigation/RootNavigator";
 import { AuthProvider } from "./state/authContext/AuthContext";
 import { DisplayProvider } from "./state/displayContext/DisplayContext";
 
 void ((version: BridgeMessageVersion) => version)(1);
+void SplashScreen.preventAutoHideAsync();
 
 export default function App() {
   return (
@@ -27,13 +31,30 @@ export default function App() {
 }
 
 function AppShell() {
+  const { token, isBootstrapping } = useAuth();
   const { resolvedTheme } = useDisplay();
+  const [isInitialLibraryReady, setIsInitialLibraryReady] = useState(false);
+
+  const handleInitialLibraryLoadEnd = useCallback(() => {
+    setIsInitialLibraryReady(true);
+  }, []);
+
+  useEffect(() => {
+    const canHideSplash =
+      !isBootstrapping && (!token || isInitialLibraryReady);
+
+    if (!canHideSplash) {
+      return;
+    }
+
+    void SplashScreen.hideAsync();
+  }, [isBootstrapping, isInitialLibraryReady, token]);
 
   return (
     <NavigationContainer
       theme={resolvedTheme === "dark" ? NavigationDarkTheme : NavigationDefaultTheme}
     >
-      <RootNavigator />
+      <RootNavigator onInitialLibraryLoadEnd={handleInitialLibraryLoadEnd} />
       <StatusBar style={resolvedTheme === "dark" ? "light" : "dark"} />
     </NavigationContainer>
   );
