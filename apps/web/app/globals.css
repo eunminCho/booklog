@@ -3,7 +3,17 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #111827;
+  --surface-default: #ffffff;
+  --surface-subtle: #f3f4f6;
+  --surface-selected: #f3f4f6;
+  --text-secondary: #374151;
+  --text-muted: #6b7280;
+  --text-inverse: #f9fafb;
+  --border-default: #6b7280;
+  --border-subtle: #d4d4d8;
+  --border-strong: #3f3f46;
+  --feedback-error: #b91c1c;
   --app-font-scale: 1;
 }
 
@@ -15,8 +25,18 @@
 }
 
 html[data-theme="dark"] {
-  --background: #0a0a0a;
-  --foreground: #ededed;
+  --background: #030712;
+  --foreground: #f9fafb;
+  --surface-default: #111827;
+  --surface-subtle: #1f2937;
+  --surface-selected: #111827;
+  --text-secondary: #d1d5db;
+  --text-muted: #9ca3af;
+  --text-inverse: #111827;
+  --border-default: #6b7280;
+  --border-subtle: #3f3f46;
+  --border-strong: #9ca3af;
+  --feedback-error: #fecaca;
   color-scheme: dark;
 }
 
@@ -32,8 +52,18 @@ html:not([data-theme]) {
 @media (prefers-color-scheme: dark) {
   html[data-theme="system"],
   html:not([data-theme]) {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #030712;
+    --foreground: #f9fafb;
+    --surface-default: #111827;
+    --surface-subtle: #1f2937;
+    --surface-selected: #111827;
+    --text-secondary: #d1d5db;
+    --text-muted: #9ca3af;
+    --text-inverse: #111827;
+    --border-default: #6b7280;
+    --border-subtle: #3f3f46;
+    --border-strong: #9ca3af;
+    --feedback-error: #fecaca;
     color-scheme: dark;
   }
 }
@@ -51,51 +81,51 @@ html {
 
 /* Temporary dark palette bridge for existing zinc/white utility usage. */
 html.dark .bg-zinc-50 {
-  background-color: #09090b;
+  background-color: var(--background);
 }
 
 html.dark .bg-zinc-100 {
-  background-color: #18181b;
+  background-color: var(--surface-default);
 }
 
 html.dark .bg-white {
-  background-color: #18181b;
+  background-color: var(--surface-default);
 }
 
 html.dark .border-zinc-200,
 html.dark .border-zinc-300 {
-  border-color: #3f3f46;
+  border-color: var(--border-subtle);
 }
 
 html.dark .text-zinc-900 {
-  color: #fafafa;
+  color: var(--foreground);
 }
 
 html.dark .text-zinc-800 {
-  color: #f4f4f5;
+  color: var(--text-secondary);
 }
 
 html.dark .text-zinc-700 {
-  color: #e4e4e7;
+  color: var(--text-secondary);
 }
 
 html.dark .text-zinc-600 {
-  color: #d4d4d8;
+  color: var(--text-secondary);
 }
 
 html.dark .text-zinc-500,
 html.dark .text-zinc-400 {
-  color: #a1a1aa;
+  color: var(--text-muted);
 }
 
 html.dark .hover\:bg-zinc-100:hover {
-  background-color: #27272a;
+  background-color: var(--surface-subtle);
 }
 
 html.dark .hover\:bg-zinc-800:hover {
-  background-color: #3f3f46;
+  background-color: var(--border-subtle);
 }
 
 html.dark .ring-offset-white {
-  --tw-ring-offset-color: #09090b;
+  --tw-ring-offset-color: var(--background);
 }

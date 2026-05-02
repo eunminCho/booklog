@@ -1,5 +1,6 @@
 "use client";
 
+import { getColorTokens } from "@booklog/design-tokens";
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
 type Theme = "light" | "dark" | "system";
@@ -32,9 +33,22 @@ function resolveTheme(theme: Theme): ResolvedTheme {
 function applyDisplayToHtml(theme: Theme, fontScale: number): void {
   const html = document.documentElement;
   const resolvedTheme = resolveTheme(theme);
+  const colors = getColorTokens(resolvedTheme);
   html.dataset.theme = theme;
   html.classList.toggle("dark", resolvedTheme === "dark");
   html.style.setProperty("--app-font-scale", String(fontScale));
+  html.style.setProperty("--background", colors.surface.canvas);
+  html.style.setProperty("--foreground", colors.text.primary);
+  html.style.setProperty("--surface-default", colors.surface.default);
+  html.style.setProperty("--surface-subtle", colors.surface.subtle);
+  html.style.setProperty("--surface-selected", colors.surface.selected);
+  html.style.setProperty("--text-secondary", colors.text.secondary);
+  html.style.setProperty("--text-muted", colors.text.muted);
+  html.style.setProperty("--text-inverse", colors.text.inverse);
+  html.style.setProperty("--border-default", colors.border.default);
+  html.style.setProperty("--border-subtle", colors.border.subtle);
+  html.style.setProperty("--border-strong", colors.border.strong);
+  html.style.setProperty("--feedback-error", colors.feedback.error);
 }
 
 export function ThemeProvider({
