@@ -8,31 +8,18 @@ import {
   type ColorSchemeName,
   type AppStateStatus,
 } from "react-native";
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 
-import { postToRegisteredWebViews } from "../lib/bridge/webviewRegistry";
+import { postToRegisteredWebViews } from "../../lib/bridge/webviewRegistry";
+import { DisplayContextValue, DisplaySource, DisplayTheme, FONT_SCALE_OVERRIDE_KEY, MAX_FONT_SCALE, MIN_FONT_SCALE, ResolvedTheme, THEME_KEY } from "./constants";
 
-export type DisplayTheme = "light" | "dark" | "system";
-type ResolvedTheme = "light" | "dark";
-type DisplaySource = "system" | "override";
 
-type DisplayContextValue = {
-  theme: DisplayTheme;
-  resolvedTheme: ResolvedTheme;
-  fontScale: number;
-  source: DisplaySource;
-  setTheme: (theme: DisplayTheme) => Promise<void>;
-  setFontScaleOverride: (fontScale: number) => Promise<void>;
-  resetToSystem: () => Promise<void>;
-};
-
-const THEME_KEY = "booklog.display.theme";
-const FONT_SCALE_OVERRIDE_KEY = "booklog.display.fontScale.override";
-
-const MIN_FONT_SCALE = 0.85;
-const MAX_FONT_SCALE = 1.5;
-
-const DisplayContext = createContext<DisplayContextValue | undefined>(undefined);
+/**
+ * 앱의 display 설정(테마/폰트 스케일)을 전역으로 관리하는 컨텍스트입니다.
+ * - 시스템 설정과 사용자 오버라이드를 함께 다루고, 저장된 설정을 복원합니다.
+ * - 값이 바뀌면 WebView에도 동일한 표시 상태를 즉시 동기화합니다.
+ */
+export const DisplayContext = createContext<DisplayContextValue | undefined>(undefined);
 const logger = createConsoleLogger("mobile-display");
 
 function normalizeTheme(colorScheme: ColorSchemeName): ResolvedTheme {
@@ -43,7 +30,19 @@ function clampFontScale(value: number): number {
   return Math.min(MAX_FONT_SCALE, Math.max(MIN_FONT_SCALE, value));
 }
 
+function isDisplayTheme(value: string | null): value is DisplayTheme {
+  return value === "light" || value === "dark" || value === "system";
+}
+
+function subscribeFontScaleChange(listener: () => void): { remove: () => void } | undefined {
+  const accessibilityInfo = AccessibilityInfo as unknown as {
+    addEventListener?: (eventName: string, callback: () => void) => { remove: () => void };
+  };
+  return accessibilityInfo.addEventListener?.("change", listener);
+}
+
 export function DisplayProvider({ children }: { children: ReactNode }) {
+  // 1) 표시 상태 기본값을 초기화합니다.
   const [theme, setThemeState] = useState<DisplayTheme>("system");
   const [systemTheme, setSystemTheme] = useState<ResolvedTheme>(() =>
     normalizeTheme(Appearance.getColorScheme()),
@@ -61,6 +60,7 @@ export function DisplayProvider({ children }: { children: ReactNode }) {
     setSystemFontScale(clampFontScale(PixelRatio.getFontScale()));
   }, []);
 
+  // 2) 저장된 사용자 설정을 복원합니다.
   useEffect(() => {
     const bootstrap = async (): Promise<void> => {
       try {
@@ -69,7 +69,7 @@ export function DisplayProvider({ children }: { children: ReactNode }) {
           SecureStore.getItemAsync(FONT_SCALE_OVERRIDE_KEY),
         ]);
 
-        if (storedTheme === "light" || storedTheme === "dark" || storedTheme === "system") {
+        if (isDisplayTheme(storedTheme)) {
           setThemeState(storedTheme);
         }
 
@@ -87,18 +87,10 @@ export function DisplayProvider({ children }: { children: ReactNode }) {
     void bootstrap();
   }, []);
 
+  // 3) 시스템 설정 변화를 감지합니다.
   useEffect(() => {
-    const appearanceSubscription = Appearance.addChangeListener(() => {
-      refreshSystemTheme();
-    });
-
-    const accessibilityInfo = AccessibilityInfo as unknown as {
-      addEventListener?: (eventName: string, listener: () => void) => { remove: () => void };
-    };
-    const accessibilitySubscription = accessibilityInfo.addEventListener?.(
-      "change",
-      refreshSystemFontScale,
-    );
+    const appearanceSubscription = Appearance.addChangeListener(refreshSystemTheme);
+    const accessibilitySubscription = subscribeFontScaleChange(refreshSystemFontScale);
 
     const appStateSubscription = AppState.addEventListener("change", (state: AppStateStatus) => {
       if (state === "active") {
@@ -118,6 +110,7 @@ export function DisplayProvider({ children }: { children: ReactNode }) {
   const fontScale = fontScaleOverride ?? systemFontScale;
   const source: DisplaySource = fontScaleOverride === null ? "system" : "override";
 
+  // 4) RN -> WebView 표시 상태를 동기화합니다.
   useEffect(() => {
     postToRegisteredWebViews(
       {
@@ -137,6 +130,7 @@ export function DisplayProvider({ children }: { children: ReactNode }) {
     );
   }, [fontScale, resolvedTheme]);
 
+  // 5) 사용자 액션 핸들러를 제공합니다.
   const setTheme = useCallback(async (nextTheme: DisplayTheme): Promise<void> => {
     setThemeState(nextTheme);
     await SecureStore.setItemAsync(THEME_KEY, nextTheme);
@@ -171,13 +165,4 @@ export function DisplayProvider({ children }: { children: ReactNode }) {
   );
 
   return <DisplayContext.Provider value={value}>{children}</DisplayContext.Provider>;
-}
-
-export function useDisplay() {
-  const context = useContext(DisplayContext);
-  if (!context) {
-    throw new Error("useDisplay must be used within DisplayProvider");
-  }
-
-  return context;
 }

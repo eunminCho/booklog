@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button, StyleSheet, Text, TextInput, View } from "react-native";
 
-import { useAuth } from "../../state/AuthContext";
+import { useAuth } from "../../hooks/useAuth";
 
 export function SignUpScreen() {
   const { signUp, error, clearError, isSubmitting } = useAuth();

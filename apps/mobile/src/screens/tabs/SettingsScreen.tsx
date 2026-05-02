@@ -1,7 +1,8 @@
 import { Button, Pressable, StyleSheet, Text, View } from "react-native";
 
-import { useAuth } from "../../state/AuthContext";
-import { type DisplayTheme, useDisplay } from "../../state/DisplayContext";
+import { useAuth } from "../../hooks/useAuth";
+import { useDisplay } from "../../hooks/useDisplay";
+import { DisplayTheme } from "../../state/displayContext/constants";
 
 const THEME_OPTIONS: Array<{ value: DisplayTheme; label: string }> = [
   { value: "system", label: "시스템 따르기" },

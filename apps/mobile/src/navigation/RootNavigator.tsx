@@ -1,6 +1,6 @@
 import { AuthStack } from "./AuthStack";
 import { MainTabs } from "./MainTabs";
-import { useAuth } from "../state/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 import { ActivityIndicator, View } from "react-native";
 
 export function RootNavigator() {

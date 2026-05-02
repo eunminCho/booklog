@@ -1,9 +1,13 @@
 import { useState } from "react";
+import { useNavigation } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Button, ScrollView, StyleSheet, Text, TextInput } from "react-native";
 
-import { useAuth } from "../../state/AuthContext";
+import type { AuthStackParamList } from "../../navigation/AuthStack";
+import { useAuth } from "../../hooks/useAuth";
 
 export function LoginScreen() {
+  const navigation = useNavigation<NativeStackNavigationProp<AuthStackParamList, "Login">>();
   const { signIn, error, clearError, isSubmitting } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -18,7 +22,15 @@ export function LoginScreen() {
   }
 
   return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: "center", justifyContent: "center", padding: 20, gap: 12 }}>
+    <ScrollView
+      contentContainerStyle={{
+        flexGrow: 1,
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 20,
+        gap: 12,
+      }}
+    >
       <Text style={styles.title}>로그인</Text>
       <TextInput
         value={email}
@@ -28,7 +40,7 @@ export function LoginScreen() {
         keyboardType="email-address"
         autoCorrect={false}
         style={styles.input}
-        />
+      />
       <TextInput
         value={password}
         onChangeText={setPassword}
@@ -37,11 +49,11 @@ export function LoginScreen() {
         autoCapitalize="none"
         autoCorrect={false}
         style={styles.input}
-        />
+      />
       {error ? <Text style={styles.error}>{error}</Text> : null}
       <Button title={isSubmitting ? "로그인 중..." : "로그인"} onPress={() => void handleSignIn()} />
+      <Button title="회원가입 하러가기" onPress={() => navigation.navigate("SignUp")} />
     </ScrollView>
-
   );
 }
 

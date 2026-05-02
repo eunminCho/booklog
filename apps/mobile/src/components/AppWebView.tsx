@@ -23,8 +23,8 @@ import { WebView } from "react-native-webview";
 
 import { getApiBaseUrl } from "../lib/config";
 import { registerWebViewRef } from "../lib/bridge/webviewRegistry";
-import { useAuth } from "../state/AuthContext";
-import { useDisplay } from "../state/DisplayContext";
+import { useAuth } from "../hooks/useAuth";
+import { useDisplay } from "../hooks/useDisplay";
 
 const logger = createConsoleLogger("app-webview");
 
