@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import type { CSSProperties, ReactNode } from "react";
 import "./globals.css";
-import { siteMetadata } from "../src/lib/site-metadata";
+import { siteMetadata } from "@/src/lib/site-metadata";
 import { AppProviders } from "@/src/providers/app-providers";
 import { EmotionRegistry } from "@/src/providers/emotion-registry";
 
